@@ -36,7 +36,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/springboot_base_db
     username: root
-    password: your_password
+    password: 123456
 ```
 
 ### 2. Build & Run
