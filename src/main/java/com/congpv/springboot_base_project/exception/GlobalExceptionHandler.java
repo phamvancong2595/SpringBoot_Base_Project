@@ -42,6 +42,16 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(400, "Validation failed", errors));
     }
 
+    @ExceptionHandler({
+        org.springframework.security.access.AccessDeniedException.class, 
+        org.springframework.security.authorization.AuthorizationDeniedException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(Exception ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(403, "Access Denied: " + ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
         return ResponseEntity

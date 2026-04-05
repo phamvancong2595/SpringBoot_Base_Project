@@ -4,6 +4,7 @@ import com.congpv.springboot_base_project.dto.ProjectRequestDto;
 import com.congpv.springboot_base_project.dto.ProjectResponseDto;
 import com.congpv.springboot_base_project.entity.Project;
 import com.congpv.springboot_base_project.entity.ProjectMember;
+import com.congpv.springboot_base_project.entity.Task;
 import com.congpv.springboot_base_project.entity.User;
 import com.congpv.springboot_base_project.enums.ProjectRole;
 import com.congpv.springboot_base_project.exception.ResourceNotFoundException;
@@ -12,7 +13,13 @@ import com.congpv.springboot_base_project.repository.ProjectRepository;
 import com.congpv.springboot_base_project.repository.UserRepository;
 import com.congpv.springboot_base_project.service.ProjectService;
 
+import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,42 +29,96 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProjectServiceImpl implements ProjectService {
 
-    private final ProjectRepository projectRepository;
-    private final ProjectMemberRepository projectMemberRepository;
-    private final UserRepository userRepository;
+        private final ProjectRepository projectRepository;
+        private final ProjectMemberRepository projectMemberRepository;
+        private final UserRepository userRepository;
 
-    @Override
-    public ProjectResponseDto createProject(ProjectRequestDto dto) {
-        // 1. Tạo Project
-        Project project = Project.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .build();
-        Project saved = projectRepository.save(project);
+        @Override
+        public ProjectResponseDto createProject(ProjectRequestDto dto) {
+                // 1. Tạo Project
+                Project project = Project.builder()
+                                .name(dto.getName())
+                                .description(dto.getDescription())
+                                .build();
+                Project saved = projectRepository.save(project);
 
-        // 2. Lấy username của người đang đăng nhập từ JWT
-        String currentUsername = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
-        User creator = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", currentUsername));
+                // 2. Lấy username của người đang đăng nhập từ JWT
+                String currentUsername = SecurityContextHolder.getContext()
+                                .getAuthentication().getName();
+                User creator = userRepository.findByUsername(currentUsername)
+                                .orElseThrow(() -> new ResourceNotFoundException("User", "username", currentUsername));
 
-        // 3. Tự động gán người tạo làm PROJECT_MANAGER
-        ProjectMember manager = ProjectMember.builder()
-                .project(saved)
-                .user(creator)
-                .role(ProjectRole.PROJECT_MANAGER)
-                .build();
-        projectMemberRepository.save(manager);
+                // 3. Tự động gán người tạo làm PROJECT_MANAGER
+                ProjectMember manager = ProjectMember.builder()
+                                .project(saved)
+                                .user(creator)
+                                .role(ProjectRole.PROJECT_MANAGER)
+                                .build();
+                projectMemberRepository.save(manager);
 
-        return ProjectResponseDto.builder()
-                .id(saved.getId())
-                .name(saved.getName())
-                .description(saved.getDescription())
-                .build();
-    }
+                return ProjectResponseDto.builder()
+                                .id(saved.getId())
+                                .name(saved.getName())
+                                .description(saved.getDescription())
+                                .build();
+        }
 
-    public Project getProject(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
-    }
+        public Project getProject(Long id) {
+                return projectRepository.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
+        }
+
+        @Override
+        public ProjectResponseDto getProjectById(Long id) {
+                Project project = projectRepository.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
+                return ProjectResponseDto.builder()
+                                .id(project.getId())
+                                .name(project.getName())
+                                .description(project.getDescription())
+                                .build();
+        }
+
+        @Override
+        public List<ProjectResponseDto> getAllProjects() {
+                List<Project> projects = projectRepository.findAll();
+                return projects.stream()
+                                .map(project -> ProjectResponseDto.builder()
+                                                .id(project.getId())
+                                                .name(project.getName())
+                                                .description(project.getDescription())
+                                                .build())
+                                .collect(Collectors.toList());
+        }
+
+        @Override
+        public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
+                Project project = getProject(projectId);
+                if (Strings.isNotBlank(request.getName())) {
+                        project.setName(request.getName());
+                }
+                if (Strings.isNotBlank(request.getDescription())) {
+                        project.setDescription(request.getDescription());
+                }
+                if (Strings.isNotBlank(request.getName()) || Strings.isNotBlank(request.getDescription())) {
+                        Project saved = projectRepository.save(project);
+                        return ProjectResponseDto.builder()
+                                        .id(saved.getId())
+                                        .name(saved.getName())
+                                        .description(saved.getDescription())
+                                        .build();
+                }
+                return null;
+        }
+
+        @Override
+        public void deleteProject(Long projectId) {
+                Project project = projectRepository.findById(projectId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
+                if (project != null) {
+                        projectRepository.delete(project);
+                }
+
+        }
+
 }

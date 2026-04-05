@@ -1,14 +1,14 @@
 package com.congpv.springboot_base_project.repository;
 
-import com.congpv.springboot_base_project.entity.Project;
 import com.congpv.springboot_base_project.entity.Task;
-
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, Long> {
-    Optional<Project> findByIdAndIsDeletedFalse(Long id);
+public interface TaskRepository extends JpaRepository<Task, Long> {
+    List<Task> findByProjectId(Long projectId);
+    Optional<Task> findByIdAndProjectId(Long id, Long projectId);
 }

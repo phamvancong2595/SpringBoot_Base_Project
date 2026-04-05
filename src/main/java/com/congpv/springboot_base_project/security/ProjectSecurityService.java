@@ -14,11 +14,26 @@ public class ProjectSecurityService {
     private final ProjectMemberRepository projectMemberRepository;
 
     public boolean isProjectManager(Long projectId, Authentication authentication) {
-        if(authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return false;
+        }
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return true;
         }
         String username = authentication.getName();
         Optional<ProjectMember> member = projectMemberRepository.findByProjectIdAndUserUsername(projectId, username);
         return member.isPresent() && member.get().getRole() == ProjectRole.PROJECT_MANAGER;
+    }
+
+    public boolean isProjectMember(Long projectId, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return true;
+        }
+        String username = authentication.getName();
+        Optional<ProjectMember> member = projectMemberRepository.findByProjectIdAndUserUsername(projectId, username);
+        return member.isPresent();
     }
 }
