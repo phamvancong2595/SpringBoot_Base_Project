@@ -24,7 +24,7 @@ public class Task extends BaseEntity {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private TaskStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)

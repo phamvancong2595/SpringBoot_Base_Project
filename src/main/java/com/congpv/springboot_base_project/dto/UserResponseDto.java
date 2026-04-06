@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import com.congpv.springboot_base_project.enums.UserRole;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +20,7 @@ public class UserResponseDto {
     private String email;
     private String fullName;
     private Boolean active;
-    private String role;
+    private UserRole role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

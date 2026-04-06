@@ -1,5 +1,7 @@
 package com.congpv.springboot_base_project.entity;
 
+import com.congpv.springboot_base_project.enums.UserRole;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -41,7 +43,8 @@ public class User extends BaseEntity {
     @Builder.Default
     private Boolean active = true;
 
-    @Column(length = 20)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20)
     @Builder.Default
-    private String role = "ROLE_USER";
+    private UserRole role = UserRole.ROLE_USER;
 }

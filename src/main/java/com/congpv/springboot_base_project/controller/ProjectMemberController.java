@@ -2,9 +2,13 @@ package com.congpv.springboot_base_project.controller;
 
 import com.congpv.springboot_base_project.dto.ApiResponse;
 import com.congpv.springboot_base_project.dto.ProjectMemberRequestDto;
+import com.congpv.springboot_base_project.dto.ProjectMemberResponseDto;
 import com.congpv.springboot_base_project.service.ProjectMemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,5 +28,13 @@ public class ProjectMemberController {
             @Valid @RequestBody ProjectMemberRequestDto request) {
         memberService.addMember(projectId, request);
         return ResponseEntity.ok(ApiResponse.success("Member added", null));
+    }
+
+    @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ProjectMemberResponseDto>>> getAllProjectMembers(
+            @PathVariable Long projectId) {
+        List<ProjectMemberResponseDto> projectMembers = memberService.getAllProjectMembers(projectId);
+        return ResponseEntity.ok(ApiResponse.success(projectMembers));
     }
 }

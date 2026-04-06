@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ public class TaskController {
 
     private final TaskService taskService;
 
+    @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
     @PostMapping
     public ResponseEntity<ApiResponse<TaskResponseDto>> createTask(
             @PathVariable Long projectId,
@@ -30,12 +32,14 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(task));
     }
 
+    @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
     @GetMapping
     public ResponseEntity<ApiResponse<List<TaskResponseDto>>> getAllTasks(@PathVariable Long projectId) {
         List<TaskResponseDto> tasks = taskService.getTasksByProject(projectId);
         return ResponseEntity.ok(ApiResponse.success(tasks));
     }
 
+    @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
     @GetMapping("/{taskId}")
     public ResponseEntity<ApiResponse<TaskResponseDto>> getTaskById(
             @PathVariable Long projectId,
@@ -44,6 +48,7 @@ public class TaskController {
         return ResponseEntity.ok(ApiResponse.success(task));
     }
 
+    @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
     @PutMapping("/{taskId}")
     public ResponseEntity<ApiResponse<TaskResponseDto>> updateTask(
             @PathVariable Long projectId,
@@ -53,6 +58,7 @@ public class TaskController {
         return ResponseEntity.ok(ApiResponse.success("Task updated", task));
     }
 
+    @PreAuthorize("@projectSecurity.isProjectManager(#projectId, authentication)")
     @DeleteMapping("/{taskId}")
     public ResponseEntity<ApiResponse<Void>> deleteTask(
             @PathVariable Long projectId,
