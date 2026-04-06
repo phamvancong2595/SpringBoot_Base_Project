@@ -56,7 +56,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public TaskResponseDto getTaskById(Long projectId, Long taskId) {
-        Task task = taskRepository.findByIdAndProjectId(taskId, projectId)
+        Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
         return mapToDto(task);
     }
