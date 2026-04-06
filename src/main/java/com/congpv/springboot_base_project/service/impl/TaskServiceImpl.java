@@ -67,14 +67,14 @@ public class TaskServiceImpl implements TaskService {
         if (!projectRepository.existsById(projectId)) {
             throw new ResourceNotFoundException("Project", "id", projectId);
         }
-        return taskRepository.findByProjectId(projectId).stream()
+        return taskRepository.findByProjectIdAndIsDeletedFalse(projectId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public TaskResponseDto updateTask(Long projectId, Long taskId, TaskRequestDto request) {
-        Task task = taskRepository.findByIdAndProjectId(taskId, projectId)
+        Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
 
         task.setTitle(request.getTitle());
@@ -95,9 +95,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTask(Long projectId, Long taskId) {
-        Task task = taskRepository.findByIdAndProjectId(taskId, projectId)
+        Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
-        taskRepository.delete(task);
+        task.setDeleted(true);
+        taskRepository.save(task);
     }
 
     private TaskResponseDto mapToDto(Task task) {

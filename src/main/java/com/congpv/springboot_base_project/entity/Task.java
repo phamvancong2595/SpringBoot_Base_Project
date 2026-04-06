@@ -1,5 +1,8 @@
 package com.congpv.springboot_base_project.entity;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import com.congpv.springboot_base_project.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,6 +14,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE tasks SET is_deleted = true WHERE id=?")
+@Where(clause = "is_deleted = false")
 public class Task extends BaseEntity {
 
     @Id
@@ -38,4 +43,6 @@ public class Task extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_id", nullable = false)
     private User reporter;
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
 }

@@ -64,13 +64,13 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         public Project getProject(Long id) {
-                return projectRepository.findById(id)
+                return projectRepository.findByIdAndIsDeletedFalse(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
         }
 
         @Override
         public ProjectResponseDto getProjectById(Long id) {
-                Project project = projectRepository.findById(id)
+                Project project = projectRepository.findByIdAndIsDeletedFalse(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
                 return ProjectResponseDto.builder()
                                 .id(project.getId())
@@ -113,10 +113,11 @@ public class ProjectServiceImpl implements ProjectService {
 
         @Override
         public void deleteProject(Long projectId) {
-                Project project = projectRepository.findById(projectId)
+                Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
                 if (project != null) {
-                        projectRepository.delete(project);
+                        project.setDeleted(true);
+                        projectRepository.save(project);
                 }
 
         }
