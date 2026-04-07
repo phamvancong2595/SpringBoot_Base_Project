@@ -1,7 +1,6 @@
 package com.congpv.springboot_base_project.service;
 
-import java.util.List;
-
+import com.congpv.springboot_base_project.dto.PageResponse;
 import com.congpv.springboot_base_project.dto.ProjectRequestDto;
 import com.congpv.springboot_base_project.dto.ProjectResponseDto;
 
@@ -10,7 +9,7 @@ public interface ProjectService {
 
     ProjectResponseDto getProjectById(Long projectId);
 
-    List<ProjectResponseDto> getAllProjects();
+    PageResponse<ProjectResponseDto> getAllProjects(int pageNo, int pageSize);
 
     ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request);
 

@@ -1,5 +1,6 @@
 package com.congpv.springboot_base_project.service.impl;
 
+import com.congpv.springboot_base_project.dto.PageResponse;
 import com.congpv.springboot_base_project.dto.ProjectRequestDto;
 import com.congpv.springboot_base_project.dto.ProjectResponseDto;
 import com.congpv.springboot_base_project.entity.Project;
@@ -20,6 +21,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,15 +85,27 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         @Override
-        public List<ProjectResponseDto> getAllProjects() {
-                List<Project> projects = projectRepository.findAll();
-                return projects.stream()
+        public PageResponse<ProjectResponseDto> getAllProjects(int pageNo, int pageSize) {
+
+                Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
+
+                Page<Project> projectPage = projectRepository.findAllByIsDeletedFalse(pageable);
+
+                List<ProjectResponseDto> content = projectPage.getContent().stream()
                                 .map(project -> ProjectResponseDto.builder()
                                                 .id(project.getId())
                                                 .name(project.getName())
                                                 .description(project.getDescription())
                                                 .build())
                                 .collect(Collectors.toList());
+                return PageResponse.<ProjectResponseDto>builder()
+                                .content(content)
+                                .page(projectPage.getNumber())
+                                .size(projectPage.getSize())
+                                .totalElements(projectPage.getTotalElements())
+                                .totalPages(projectPage.getTotalPages())
+                                .isLast(projectPage.isLast())
+                                .build();
         }
 
         @Override

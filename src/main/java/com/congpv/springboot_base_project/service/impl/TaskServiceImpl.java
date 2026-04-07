@@ -1,5 +1,7 @@
 package com.congpv.springboot_base_project.service.impl;
 
+import com.congpv.springboot_base_project.dto.PageResponse;
+import com.congpv.springboot_base_project.dto.ProjectResponseDto;
 import com.congpv.springboot_base_project.dto.TaskRequestDto;
 import com.congpv.springboot_base_project.dto.TaskResponseDto;
 import com.congpv.springboot_base_project.entity.Project;
@@ -11,6 +13,10 @@ import com.congpv.springboot_base_project.repository.TaskRepository;
 import com.congpv.springboot_base_project.repository.UserRepository;
 import com.congpv.springboot_base_project.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,13 +69,33 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskResponseDto> getTasksByProject(Long projectId) {
+    public PageResponse<TaskResponseDto> getTasksByProject(Long projectId, int pageNo, int pageSize) {
         if (!projectRepository.existsById(projectId)) {
             throw new ResourceNotFoundException("Project", "id", projectId);
         }
-        return taskRepository.findByProjectIdAndIsDeletedFalse(projectId).stream()
-                .map(this::mapToDto)
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Task> taskPage = taskRepository.findByProjectIdAndIsDeletedFalse(projectId, pageable);
+        List<TaskResponseDto> content = taskPage.getContent().stream()
+                .map(task -> TaskResponseDto.builder()
+                        .id(task.getId())
+                        .title(task.getTitle())
+                        .description(task.getDescription())
+                        .status(task.getStatus())
+                        .projectId(task.getProject().getId())
+                        .reporterUsername(task.getReporter().getUsername())
+                        .assigneeUsername(task.getAssignee() != null ? task.getAssignee().getUsername() : null)
+                        .createdAt(task.getCreatedAt())
+                        .updatedAt(task.getUpdatedAt())
+                        .build())
                 .collect(Collectors.toList());
+        return PageResponse.<TaskResponseDto>builder()
+                .content(content)
+                .page(taskPage.getNumber())
+                .size(taskPage.getSize())
+                .totalElements(taskPage.getTotalElements())
+                .totalPages(taskPage.getTotalPages())
+                .isLast(taskPage.isLast())
+                .build();
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.congpv.springboot_base_project.controller;
 
 import com.congpv.springboot_base_project.dto.ApiResponse;
+import com.congpv.springboot_base_project.dto.PageResponse;
+import com.congpv.springboot_base_project.dto.ProjectResponseDto;
 import com.congpv.springboot_base_project.dto.TaskRequestDto;
 import com.congpv.springboot_base_project.dto.TaskResponseDto;
 import com.congpv.springboot_base_project.service.TaskService;
@@ -34,9 +36,14 @@ public class TaskController {
 
     @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<TaskResponseDto>>> getAllTasks(@PathVariable Long projectId) {
-        List<TaskResponseDto> tasks = taskService.getTasksByProject(projectId);
-        return ResponseEntity.ok(ApiResponse.success(tasks));
+    public ResponseEntity<ApiResponse<PageResponse<TaskResponseDto>>> getAllTasks(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+            @PathVariable Long projectId) {
+
+        PageResponse<TaskResponseDto> response = taskService.getTasksByProject(projectId, page, size);
+
+        return ResponseEntity.ok(ApiResponse.success("Lấy danh sách công việc thành công", response));
     }
 
     @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")

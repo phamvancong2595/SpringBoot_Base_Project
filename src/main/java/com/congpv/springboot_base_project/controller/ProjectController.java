@@ -1,6 +1,7 @@
 package com.congpv.springboot_base_project.controller;
 
 import com.congpv.springboot_base_project.dto.ApiResponse;
+import com.congpv.springboot_base_project.dto.PageResponse;
 import com.congpv.springboot_base_project.dto.ProjectMemberRequestDto;
 import com.congpv.springboot_base_project.dto.ProjectMemberResponseDto;
 import com.congpv.springboot_base_project.dto.ProjectRequestDto;
@@ -45,9 +46,11 @@ public class ProjectController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProjectResponseDto>>> getAllProjects() {
-        List<ProjectResponseDto> projects = projectService.getAllProjects();
-        return ResponseEntity.ok(ApiResponse.success(projects));
+    public ResponseEntity<ApiResponse<PageResponse<ProjectResponseDto>>> getAllProjects(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+        PageResponse<ProjectResponseDto> projects = projectService.getAllProjects(page, size);
+        return ResponseEntity.ok(ApiResponse.success("Lấy danh sách dự án thành công", projects));
     }
 
     @PreAuthorize("@projectSecurity.isProjectManager(#projectId, authentication)")

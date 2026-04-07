@@ -22,18 +22,20 @@ Dự án Spring Boot quản lý task/dự án (Mini Jira) với kiến trúc Lay
 - API RESTful chuẩn, trả về format đồng nhất qua `ApiResponse`.
 
 ## Cấu trúc thư mục chuẩn
-```
+```text
 src/main/java/com/congpv/springboot_base_project/
  ├── config/          # Cấu hình Spring Security, CORS, etc.
- ├── controller/      # REST API Controllers (User, Project, Task, Auth)
- ├── service/         # Các Interface xử lý nghiệp vụ
- │   └── impl/        # Cài đặt chi tiết của các Service (VD: tự động gán Project Manager)
- ├── repository/      # Spring Data JPA Repositories truy cập DB
+ ├── controller/      # REST API Controllers (User, Project, Task, Auth, etc.)
+ ├── dto/             # Data Transfer Objects (Request/Response format)
  ├── entity/          # Các thực thể JPA (User, Project, ProjectMember, Task)
  ├── enums/           # Enum chứa quyền dự án (ProjectRole)
- ├── dto/             # Data Transfer Objects (Request/Response format)
+ ├── exception/       # Custom Exceptions & Global Exception Handler (dùng @ControllerAdvice)
+ ├── mapper/          # Chuyển đổi dữ liệu Entity <-> DTO
+ ├── repository/      # Spring Data JPA Repositories truy cập DB
  ├── security/        # Xử lý JWT, Custom User Details, isProjectManager Bean
- └── exception/       # Custom Exceptions & Global Exception Handler (dùng @ControllerAdvice)
+ ├── service/         # Các Interface xử lý nghiệp vụ
+ │   └── impl/        # Cài đặt chi tiết của các Service
+ └── util/            # Các lớp Helper, Utility cung cấp hàm dùng chung
 ```
 
 ## Cài đặt & Chạy
@@ -75,10 +77,26 @@ spring.datasource.password=123456
 ### 3. Projects (`/api/v1/projects`)
 | Method | Endpoint                        | Quyền truy cập | Mô tả |
 |--------|----------------------------------|---------------|---------|
-| POST   | `/api/v1/projects`              | 🔴 ADMIN       | Tạo dự án mới. User tạo tự động trở thành `PROJECT_MANAGER`. |
-| POST   | `/api/v1/projects/{id}/members` | 🟡 PROJECT_MANAGER | Thêm một user vào dự án cụ thể. |
-| POST   | `/api/v1/projects/{id}/tasks`   | 🔒 Có JWT (*)  | Tạo Task trong dự án. |
-> (*) Ghi chú: TaskCreation hiện tại mở tạm, bạn có thể uncomment `@PreAuthorize` tại `TaskController` để chặn.
+| GET    | `/api/v1/projects`              | 🔴 ADMIN       | Lấy danh sách toàn bộ dự án |
+| GET    | `/api/v1/projects/{id}`         | 🔒 Có JWT (Member) | Lấy thông tin dự án theo ID |
+| POST   | `/api/v1/projects`              | 🔴 ADMIN       | Tạo dự án mới. User tạo tự động trở thành `PROJECT_MANAGER` |
+| PUT    | `/api/v1/projects/{id}`         | 🟡 PROJECT_MANAGER | Cập nhật thông tin dự án |
+| DELETE | `/api/v1/projects/{id}`         | 🔴 ADMIN hoặc PM  | Xóa dự án |
+
+### 4. Project Members (`/api/v1/projects/{projectId}/members`)
+| Method | Endpoint                        | Quyền truy cập | Mô tả |
+|--------|----------------------------------|---------------|---------|
+| GET    | `/.../members`                  | 🔒 Có JWT (Member) | Lấy danh sách thành viên dự án |
+| POST   | `/.../members`                  | 🟡 PROJECT_MANAGER | Thêm một user vào dự án cụ thể |
+
+### 5. Tasks (`/api/v1/projects/{projectId}/tasks`)
+| Method | Endpoint                        | Quyền truy cập | Mô tả |
+|--------|----------------------------------|---------------|---------|
+| GET    | `/.../tasks`                    | 🔒 Có JWT (Member) | Lấy danh sách task trong dự án |
+| GET    | `/.../tasks/{taskId}`           | 🔒 Có JWT (Member) | Lấy chi tiết task |
+| POST   | `/.../tasks`                    | 🔒 Có JWT (Member) | Tạo Task mới trong dự án |
+| PUT    | `/.../tasks/{taskId}`           | 🔒 Có JWT (Member) | Cập nhật Task |
+| DELETE | `/.../tasks/{taskId}`           | 🟡 PROJECT_MANAGER | Xóa Task |
 
 ---
 
