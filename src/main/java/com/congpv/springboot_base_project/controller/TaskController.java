@@ -14,8 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/projects/{projectId}/tasks")
 @RequiredArgsConstructor
@@ -40,9 +38,7 @@ public class TaskController {
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "10", required = false) int size,
             @PathVariable Long projectId) {
-
         PageResponse<TaskResponseDto> response = taskService.getTasksByProject(projectId, page, size);
-
         return ResponseEntity.ok(ApiResponse.success("Lấy danh sách công việc thành công", response));
     }
 

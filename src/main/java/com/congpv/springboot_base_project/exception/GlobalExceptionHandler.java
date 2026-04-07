@@ -1,6 +1,9 @@
 package com.congpv.springboot_base_project.exception;
 
 import com.congpv.springboot_base_project.dto.ApiResponse;
+
+import io.sentry.Sentry;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -43,8 +46,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({
-        org.springframework.security.access.AccessDeniedException.class, 
-        org.springframework.security.authorization.AuthorizationDeniedException.class
+            org.springframework.security.access.AccessDeniedException.class,
+            org.springframework.security.authorization.AuthorizationDeniedException.class
     })
     public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(Exception ex) {
         return ResponseEntity
@@ -54,6 +57,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
+        Sentry.captureException(ex);
+        ex.printStackTrace();
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(500, "Internal server error: " + ex.getMessage()));
