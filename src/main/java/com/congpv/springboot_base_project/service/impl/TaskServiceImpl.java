@@ -14,6 +14,8 @@ import com.congpv.springboot_base_project.repository.UserRepository;
 import com.congpv.springboot_base_project.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -61,6 +63,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "tasks", key = "#projectId + '-' + #taskId")
     public TaskResponseDto getTaskById(Long projectId, Long taskId) {
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
@@ -69,6 +72,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "tasks", key = "#projectId + '-' + #pageNo + '-' + #pageSize")
     public PageResponse<TaskResponseDto> getTasksByProject(Long projectId, int pageNo, int pageSize) {
         if (!projectRepository.existsById(projectId)) {
             throw new ResourceNotFoundException("Project", "id", projectId);
@@ -99,6 +103,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
     public TaskResponseDto updateTask(Long projectId, Long taskId, TaskRequestDto request) {
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
@@ -120,6 +125,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
     public void deleteTask(Long projectId, Long taskId) {
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));

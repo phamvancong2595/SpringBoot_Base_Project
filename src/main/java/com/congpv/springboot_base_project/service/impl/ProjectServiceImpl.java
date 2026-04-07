@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -74,9 +76,10 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         @Override
-        public ProjectResponseDto getProjectById(Long id) {
-                Project project = projectRepository.findByIdAndIsDeletedFalse(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
+        @Cacheable(value = "projects", key = "#projectId")
+        public ProjectResponseDto getProjectById(Long projectId) {
+                Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
                 return ProjectResponseDto.builder()
                                 .id(project.getId())
                                 .name(project.getName())
@@ -85,6 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         @Override
+        @Cacheable(value = "projects", key = "#pageNo + '-' + #pageSize")
         public PageResponse<ProjectResponseDto> getAllProjects(int pageNo, int pageSize) {
 
                 Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
@@ -109,6 +113,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         @Override
+        @CacheEvict(value = "projects", key = "#projectId")
         public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
                 Project project = getProject(projectId);
                 if (Strings.isNotBlank(request.getName())) {
@@ -129,6 +134,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         @Override
+        @CacheEvict(value = "projects", key = "#projectId")
         public void deleteProject(Long projectId) {
                 Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));

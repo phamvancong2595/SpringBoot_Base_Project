@@ -49,8 +49,6 @@ public class ProjectController {
     public ResponseEntity<ApiResponse<PageResponse<ProjectResponseDto>>> getAllProjects(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
-        if (true)
-            throw new RuntimeException("Test thử Sentry xem có bắt được không!");
         PageResponse<ProjectResponseDto> projects = projectService.getAllProjects(page, size);
         return ResponseEntity.ok(ApiResponse.success("Lấy danh sách dự án thành công", projects));
     }
