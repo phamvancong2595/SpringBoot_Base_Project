@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:mysql://<IP_MAY_CHU_CUA_BAN>:3306/jira_production_db
+    username: admin_jira
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20 
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate 
+    show-sql: false      
+  
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    root: WARN 

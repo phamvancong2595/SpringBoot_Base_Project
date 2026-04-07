@@ -1,52 +1,18 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: springboot-base-project
+  
+  profiles:
+    active: dev 
 
-  # ===== Datasource Configuration =====
-  datasource:
-    url: jdbc:mysql://localhost:3306/springboot_base_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
-    username: root
-    password: ${DB_PASSWORD:123456}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 30000
-      connection-timeout: 20000
-      max-lifetime: 1800000
+dotenv:
+  enabled: true
 
-  # ===== JPA / Hibernate Configuration =====
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
-    open-in-view: false
+app:
+  jwt-secret: ${JWT_SECRET}
+  jwt-expiration-milliseconds: ${JWT_EXPIRATION}
 
-# ===== Logging =====
-logging:
-  level:
-    root: INFO
-    com.congpv.springboot_base_project: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-  pattern:
-    # Cấu trúc: Ngày giờ | Mức độ | [traceId] | Tên luồng | Class đang chạy | Nội dung log
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%X{traceId}] [%thread] %logger{36} : %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%X{traceId}] [%thread] %logger{36} : %msg%n" 
 sentry:
-  dsn: ${SENTRY_DSN:https://4ab10b98994308554af61f4df3328263@o4511176641544192.ingest.sentry.io/4511176645541888}
+  dsn: ${SENTRY_DSN}
   logging:
     mdc-tags: "traceId"
-  traces-sample-rate: 1.0 # Bắt 100% các lỗi
-  send-default-pii: true  # Cho phép Sentry gửi IP, username để dễ debug
-# ===== App specific configs =====
-app:
-  jwt-secret: ${JWT_SECRET:daf66e01593f61a15b857cf433aae03a005812b31234e149036bcc8dee755dbb}
-  jwt-expiration-milliseconds: ${JWT_EXPIRATION_MILLISECONDS:604800000}

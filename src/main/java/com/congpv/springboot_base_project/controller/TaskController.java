@@ -5,6 +5,8 @@ import com.congpv.springboot_base_project.dto.PageResponse;
 import com.congpv.springboot_base_project.dto.ProjectResponseDto;
 import com.congpv.springboot_base_project.dto.TaskRequestDto;
 import com.congpv.springboot_base_project.dto.TaskResponseDto;
+import com.congpv.springboot_base_project.entity.Task;
+import com.congpv.springboot_base_project.service.EmailService;
 import com.congpv.springboot_base_project.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class TaskController {
 
     private final TaskService taskService;
+    private final EmailService emailService;
 
     @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
     @PostMapping
@@ -29,6 +32,7 @@ public class TaskController {
             Authentication authentication) {
         String reporterUsername = authentication.getName();
         TaskResponseDto task = taskService.createTask(projectId, request, reporterUsername);
+        emailService.sendNewTaskNotification("congpv24@gmail.com", task.getTitle(), reporterUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(task));
     }
 
