@@ -6,20 +6,24 @@ Dự án Spring Boot quản lý task/dự án (Mini Jira) với kiến trúc Lay
 ## Công nghệ
 - **Spring Boot** 3.x
 - **Java** 17
-- **Spring Data JPA** (Hibernate ORM)
-- **MySQL** 8.x
-- **Spring Security** (Stateless, BCrypt, `@PreAuthorize`)
-- **JSON Web Token (JWT)** (jjwt)
-- **Lombok**
-- **Bean Validation**
-- **Spring DevTools**
+- **Spring Data JPA** & **MySQL** 8.x
+- **Spring Security** (Stateless, JWT, CORS, `@PreAuthorize`)
+- **Swagger/OpenAPI** 3 (API Documentation)
+- **Sentry** (Theo dõi lỗi & Exception tracking)
+- **Caffeine Cache** (Tăng tốc độ truy xuất đọc)
+- **Spring Mail & @Async** (Gửi email thông báo ngầm)
+- **Dotenv** (Quản lý biến môi trường bảo mật)
+- **Lombok** & **Bean Validation**
 
 ## Tính năng chính
 - Xác thực người dùng bằng JWT Token.
 - Phân quyền toàn cục (Global Role: `ADMIN`, `USER`).
 - Quản lý Dự án (Projects) và phân quyền theo dự án (Project Role: `PROJECT_MANAGER`, `DEVELOPER`, v.v.).
 - Tự động gán người tạo dự án làm `PROJECT_MANAGER`.
-- API RESTful chuẩn, trả về format đồng nhất qua `ApiResponse`.
+- API RESTful chuẩn, trả về format đồng nhất qua `ApiResponse` và `PageResponse` (Phân trang).
+- Gửi Email thông báo khi tạo task (chạy ngầm `@Async`).
+- API Documentation (Swagger).
+- Caching kết quả tự động bằng thư viện Caffeine và theo dõi lỗi với Sentry.
 
 ## Cấu trúc thư mục chuẩn
 ```text
@@ -37,17 +41,23 @@ src/main/java/com/congpv/springboot_base_project/
  │   └── impl/        # Cài đặt chi tiết của các Service
  └── util/            # Các lớp Helper, Utility cung cấp hàm dùng chung
 ```
+Ngoài ra, cấu hình môi trường được quản lý tại `src/main/resources` gồm `application.yml`, `application-dev.yml`, và `application-prod.yml`.
 
 ## Cài đặt & Chạy
 
-### 1. Cấu hình MySQL
-Cập nhật file `src/main/resources/application.properties` (hoặc `.yml` nếu có đổi format):
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/springboot_base_db
-spring.datasource.username=root
-spring.datasource.password=123456
+### 1. Biến môi trường (.env)
+Tạo file `.env` ở thư mục gốc (ngang với `pom.xml`) để chứa thông tin bảo mật:
+```env
+DB_PASSWORD=mat_khau_mysql
+JWT_SECRET=chuoi_ky_tu_bi_mat_jwt_khoang_hon_256_bit
+JWT_EXPIRATION=604800000
+MAIL_USERNAME=email_cua_ban@gmail.com
+MAIL_PASSWORD=app_password_cua_email
+SENTRY_DSN=link_sentry_dsn_neu_co
 ```
-*(Hoặc đổi thông tin cho phù hợp với môi trường của bạn)*
+
+### 2. Cấu hình & Chạy
+Hệ thống mặc định chạy profile `dev` nên sẽ đọc cấu hình từ `application-dev.yml`. Sau khi file `.env` được tạo xong, project sẽ tự động map credentials vào.
 
 ### 2. Build & Run
 ```bash
@@ -77,7 +87,7 @@ spring.datasource.password=123456
 ### 3. Projects (`/api/v1/projects`)
 | Method | Endpoint                        | Quyền truy cập | Mô tả |
 |--------|----------------------------------|---------------|---------|
-| GET    | `/api/v1/projects`              | 🔴 ADMIN       | Lấy danh sách toàn bộ dự án |
+| GET    | `/api/v1/projects`              | 🔴 ADMIN       | Lấy DS toàn bộ dự án (Phân trang `?page=x&size=y`) |
 | GET    | `/api/v1/projects/{id}`         | 🔒 Có JWT (Member) | Lấy thông tin dự án theo ID |
 | POST   | `/api/v1/projects`              | 🔴 ADMIN       | Tạo dự án mới. User tạo tự động trở thành `PROJECT_MANAGER` |
 | PUT    | `/api/v1/projects/{id}`         | 🟡 PROJECT_MANAGER | Cập nhật thông tin dự án |
@@ -92,7 +102,7 @@ spring.datasource.password=123456
 ### 5. Tasks (`/api/v1/projects/{projectId}/tasks`)
 | Method | Endpoint                        | Quyền truy cập | Mô tả |
 |--------|----------------------------------|---------------|---------|
-| GET    | `/.../tasks`                    | 🔒 Có JWT (Member) | Lấy danh sách task trong dự án |
+| GET    | `/.../tasks`                    | 🔒 Có JWT (Member) | Lấy DS task trong dự án (Phân trang `?page=x&size=y`) |
 | GET    | `/.../tasks/{taskId}`           | 🔒 Có JWT (Member) | Lấy chi tiết task |
 | POST   | `/.../tasks`                    | 🔒 Có JWT (Member) | Tạo Task mới trong dự án |
 | PUT    | `/.../tasks/{taskId}`           | 🔒 Có JWT (Member) | Cập nhật Task |
