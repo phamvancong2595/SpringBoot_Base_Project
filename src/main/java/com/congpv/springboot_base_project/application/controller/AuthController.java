@@ -45,11 +45,10 @@ public class AuthController {
         String username = tokenProvider.getUsernameFromJWT(reqRefreshToken);
 
         if (username != null) {
-            // 2. Tìm User trong DB
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            username,
-                            null));
+            // 2. Kiểm tra User tồn tại trong hệ thống (Không dùng AuthenticationManager để tránh lỗi so khớp Password)
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy User"));
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null);
 
             // 3. Kiểm tra xem Refresh Token này có hợp lệ không
             if (tokenProvider.validateToken(reqRefreshToken)) {
