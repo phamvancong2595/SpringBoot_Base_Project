@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                boolean isTokenValidInDB = tokenRepository.findByToken(jwt)
+                boolean isTokenValidInDB = tokenRepository.findByAccessToken(jwt)
                         .map(token -> !token.isExpired() && !token.isRevoked()).orElse(false);
                 if (isTokenValidInDB) {
                     String username = tokenProvider.getUsernameFromJWT(jwt);

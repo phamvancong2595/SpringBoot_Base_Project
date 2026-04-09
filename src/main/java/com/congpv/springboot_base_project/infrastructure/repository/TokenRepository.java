@@ -1,6 +1,7 @@
 package com.congpv.springboot_base_project.infrastructure.repository;
 
 import com.congpv.springboot_base_project.core.entity.Token;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,5 +18,7 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     List<Token> findAllValidTokenByUser(Long userId);
 
     // Tìm token theo chuỗi JWT
-    Optional<Token> findByToken(String token);
+    Optional<Token> findByAccessToken(String accessToken);
+
+    Optional<Token> findByRefreshToken(String reqRefreshToken);
 }

@@ -18,8 +18,11 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
-    @Column(unique = true)
-    public String token;
+    @Column(unique = true, length = 500)
+    public String accessToken;
+
+    @Column(unique = true, length = 500)
+    public String refreshToken;
 
     // Trạng thái bị thu hồi (ví dụ: khi user đăng nhập ở máy khác)
     public boolean revoked;
