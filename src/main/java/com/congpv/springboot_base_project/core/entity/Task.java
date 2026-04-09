@@ -1,5 +1,7 @@
 package com.congpv.springboot_base_project.core.entity;
 
+import java.time.LocalDateTime;
+
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -43,6 +45,15 @@ public class Task extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_id", nullable = false)
     private User reporter;
+    @Column(name = "start_date")
+    private LocalDateTime startDate;
+
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
+
+    @Column(name = "estimate_hours")
+    private Integer estimateHours;
+
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 }

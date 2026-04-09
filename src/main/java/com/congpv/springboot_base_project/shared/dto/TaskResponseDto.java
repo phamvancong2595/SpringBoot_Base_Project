@@ -15,6 +15,9 @@ public class TaskResponseDto {
     private Long projectId;
     private String reporterUsername;
     private String assigneeUsername;
+    private LocalDateTime startDate;
+    private LocalDateTime dueDate;
+    private Integer estimateHours;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
