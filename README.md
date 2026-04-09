@@ -25,21 +25,26 @@ Dự án Spring Boot quản lý task/dự án (Mini Jira) với kiến trúc Lay
 - API Documentation (Swagger).
 - Caching kết quả tự động bằng thư viện Caffeine và theo dõi lỗi với Sentry.
 
-## Cấu trúc thư mục chuẩn
+## Cấu trúc thư mục (Clean Architecture)
+
+Dự án được ứng dụng mô hình **Clean Architecture** để dễ dàng mở rộng và bảo trì, chia thành 4 lớp rõ ràng:
 ```text
 src/main/java/com/congpv/springboot_base_project/
- ├── config/          # Cấu hình Spring Security, CORS, etc.
- ├── controller/      # REST API Controllers (User, Project, Task, Auth, etc.)
- ├── dto/             # Data Transfer Objects (Request/Response format)
- ├── entity/          # Các thực thể JPA (User, Project, ProjectMember, Task)
- ├── enums/           # Enum chứa quyền dự án (ProjectRole)
- ├── exception/       # Custom Exceptions & Global Exception Handler (dùng @ControllerAdvice)
- ├── mapper/          # Chuyển đổi dữ liệu Entity <-> DTO
- ├── repository/      # Spring Data JPA Repositories truy cập DB
- ├── security/        # Xử lý JWT, Custom User Details, isProjectManager Bean
- ├── service/         # Các Interface xử lý nghiệp vụ
- │   └── impl/        # Cài đặt chi tiết của các Service
- └── util/            # Các lớp Helper, Utility cung cấp hàm dùng chung
+├── application/      # Controllers, tiếp nhận yêu cầu từ user/client
+│   └── controller/   # REST API Controllers (User, Project, Task, Auth, v.v.)
+├── core/             # Chứa Core Business (Domain logic xử lý nghiệp vụ)
+│   ├── entity/       # Các Entity JPA (User, Project, ProjectMember, Task)
+│   └── service/      # Cài đặt Interface / Business layer thao tác với logic lõi
+├── infrastructure/   # Tích hợp công nghệ bên ngoài, Database, Bảo mật 
+│   ├── config/       # Cấu hình Framework (CORS, Sentry, Cache, v.v.)
+│   ├── repository/   # Kết nối DB sử dụng Spring Data JPA
+│   └── security/     # Lớp cấu hình Spring Security (JWT, Provider, Permission)
+└── shared/           # Mã nguồn dùng chung, tiện ích (Constants, Utils)
+    ├── dto/          # Data Transfer Objects
+    ├── enums/        # Các ENUM chung của toàn dự án
+    ├── exception/    # Custom Exception & Global Controller Advice
+    ├── mapper/       # Data Mappers (vd chuyển Entity <-> DTO)
+    └── util/         # Logging, Date formatter, Utilities
 ```
 Ngoài ra, cấu hình môi trường được quản lý tại `src/main/resources` gồm `application.yml`, `application-dev.yml`, và `application-prod.yml`.
 
