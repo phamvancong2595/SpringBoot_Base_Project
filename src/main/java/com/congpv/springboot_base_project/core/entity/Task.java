@@ -2,11 +2,14 @@ package com.congpv.springboot_base_project.core.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import com.congpv.springboot_base_project.shared.enums.TaskPriority;
 import com.congpv.springboot_base_project.shared.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -62,6 +65,14 @@ public class Task extends BaseEntity {
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Logtime> logtimes = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priority", nullable = false, length = 20)
+    private TaskPriority priority;
+
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "task_tags", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tag> tags = new HashSet<>();
 }
