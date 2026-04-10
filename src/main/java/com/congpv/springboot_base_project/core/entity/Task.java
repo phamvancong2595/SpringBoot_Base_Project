@@ -1,6 +1,8 @@
 package com.congpv.springboot_base_project.core.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -53,6 +55,12 @@ public class Task extends BaseEntity {
 
     @Column(name = "estimate_hours")
     private Integer estimateHours;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Logtime> logtimes = new ArrayList<>();
 
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
