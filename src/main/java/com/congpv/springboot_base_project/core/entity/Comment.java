@@ -38,6 +38,7 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 }
