@@ -22,7 +22,7 @@ public class Tag {
 
     @Column(length = 20)
     private String color;
-
+    @Builder.Default
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
     private Set<Task> tasks = new HashSet<>();
 }

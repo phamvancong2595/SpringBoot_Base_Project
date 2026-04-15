@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import com.congpv.springboot_base_project.shared.enums.TaskPriority;
 import com.congpv.springboot_base_project.shared.enums.TaskStatus;
@@ -22,12 +22,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @SQLDelete(sql = "UPDATE tasks SET is_deleted = true WHERE id=?")
-@Where(clause = "is_deleted = false")
+@SQLRestriction("is_deleted = false")
 public class Task extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(nullable = false)
     private String title;
@@ -59,9 +55,11 @@ public class Task extends BaseEntity {
     @Column(name = "estimate_hours")
     private Integer estimateHours;
 
+    @Builder.Default
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Logtime> logtimes = new ArrayList<>();
 
@@ -72,6 +70,7 @@ public class Task extends BaseEntity {
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "task_tags", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();

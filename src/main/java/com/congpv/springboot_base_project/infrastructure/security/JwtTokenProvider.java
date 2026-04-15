@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,14 +43,14 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    private Key getSignInKey() {
+    private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String getUsernameFromJWT(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
+        Claims claims = Jwts.parser()
+                .verifyWith(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -58,7 +59,7 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(authToken);
+            Jwts.parser().setSigningKey(getSignInKey()).build().parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException ex) {
             logger.error("Invalid JWT token");

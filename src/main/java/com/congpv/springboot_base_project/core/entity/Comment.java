@@ -1,7 +1,8 @@
 package com.congpv.springboot_base_project.core.entity;
 
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,14 +20,12 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "comments")
 @Data
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE comments SET is_deleted = true WHERE id = ?")
-@Where(clause = "is_deleted = false")
+@SQLRestriction("is_deleted = false")
 public class Comment extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
