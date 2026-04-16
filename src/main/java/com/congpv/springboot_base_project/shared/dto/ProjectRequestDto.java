@@ -1,15 +1,5 @@
 package com.congpv.springboot_base_project.shared.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+public record ProjectRequestDto( String name, String description) {
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProjectRequestDto {
-    private String name;
-    private String description;
 }

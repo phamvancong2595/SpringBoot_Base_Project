@@ -25,18 +25,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto createUser(UserRequestDto request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new BadRequestException("Username already exists: " + request.getUsername());
+        if (userRepository.existsByUsername(request.username())) {
+            throw new BadRequestException("Username already exists: " + request.username());
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Email already exists: " + request.getEmail());
+        if (userRepository.existsByEmail(request.email())) {
+            throw new BadRequestException("Email already exists: " + request.email());
         }
 
         User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .fullName(request.getFullName())
+                .username(request.username())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .fullName(request.fullName())
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -73,25 +73,25 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
         // Check unique constraints for other users
-        userRepository.findByUsername(request.getUsername())
+        userRepository.findByUsername(request.username())
                 .ifPresent(existingUser -> {
                     if (!existingUser.getId().equals(id)) {
-                        throw new BadRequestException("Username already exists: " + request.getUsername());
+                        throw new BadRequestException("Username already exists: " + request.username());
                     }
                 });
 
-        userRepository.findByEmail(request.getEmail())
+        userRepository.findByEmail(request.email())
                 .ifPresent(existingUser -> {
                     if (!existingUser.getId().equals(id)) {
-                        throw new BadRequestException("Email already exists: " + request.getEmail());
+                        throw new BadRequestException("Email already exists: " + request.email());
                     }
                 });
 
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFullName(request.getFullName());
-        user.setRole(request.getRole());
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setFullName(request.fullName());
+        user.setRole(request.role());
         User updatedUser = userRepository.save(user);
         return mapToDto(updatedUser);
     }

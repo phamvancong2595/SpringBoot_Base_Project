@@ -1,19 +1,8 @@
 package com.congpv.springboot_base_project.shared.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class LoginRequestDto {
-    @NotBlank(message = "Username is required")
-    private String username;
+public record LoginRequestDto(@NotBlank(message = "Username is required") String username,
+                              @NotBlank(message = "Password is required") String password) {
 
-    @NotBlank(message = "Password is required")
-    private String password;
 }

@@ -1,21 +1,14 @@
 package com.congpv.springboot_base_project.shared.dto;
 
+import lombok.Builder;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class PageResponse<T> {
-    private List<T> content;
-    private int page;
-    private int size;
-    private long totalElements;
-    private int totalPages;
-    private boolean isLast;
-}
+public record PageResponse<T>(
+        List<T> content,
+        int page,
+        int size,
+        long totalElements,
+        int totalPages,
+        boolean isLast
+) {}

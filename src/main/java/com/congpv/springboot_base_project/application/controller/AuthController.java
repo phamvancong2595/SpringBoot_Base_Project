@@ -39,7 +39,7 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
-        String reqRefreshToken = request.getRefreshToken();
+        String reqRefreshToken = request.refreshToken();
 
         // 1. Giải mã token để lấy username (Email)
         String username = tokenProvider.getUsernameFromJWT(reqRefreshToken);
@@ -72,7 +72,7 @@ public class AuthController {
                 // 7. Trả về cho Frontend
                 return ResponseEntity.ok(Map.of(
                         "accessToken", newAccessToken,
-                        "refreshToken", reqRefreshToken // Vẫn giữ nguyên thẻ VIP cũ
+                        "refreshToken", reqRefreshToken
                 ));
             }
         }
@@ -85,15 +85,13 @@ public class AuthController {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()));
+                        loginRequest.username(),
+                        loginRequest.password()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = tokenProvider.generateAccessToken(authentication);
         String refreshToken = tokenProvider.generateRefreshToken(authentication);
-        User user = userRepository.findByUsername(loginRequest.getUsername())
+        User user = userRepository.findByUsername(loginRequest.username())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        // 4. Thu hồi các token cũ đang có và Lưu token mới
         revokeAllUserTokens(user);
         saveUserToken(user, accessToken, refreshToken);
 
@@ -105,7 +103,6 @@ public class AuthController {
         if (validUserTokens.isEmpty()) {
             return;
         }
-        // Lặp qua danh sách token hợp lệ và chuyển trạng thái thành đã thu hồi/hết hạn
         validUserTokens.forEach(token -> {
             token.setExpired(true);
             token.setRevoked(true);

@@ -43,22 +43,22 @@ public class TaskServiceImpl implements TaskService {
                                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", reporterUsername));
 
                 User assignee = null;
-                if (request.getAssigneeId() != null) {
-                        assignee = userRepository.findById(request.getAssigneeId())
+                if (request.assigneeId() != null) {
+                        assignee = userRepository.findById(request.assigneeId())
                                         .orElseThrow(() -> new ResourceNotFoundException("User", "id",
-                                                        request.getAssigneeId()));
+                                                        request.assigneeId()));
                 }
 
                 Task task = Task.builder()
-                                .title(request.getTitle())
-                                .description(request.getDescription())
-                                .status(request.getStatus())
+                                .title(request.title())
+                                .description(request.description())
+                                .status(request.status())
                                 .project(project)
                                 .reporter(reporter)
                                 .assignee(assignee)
-                                .dueDate(request.getDueDate())
-                                .startDate(request.getStartDate())
-                                .estimateHours(request.getEstimateHours())
+                                .dueDate(request.dueDate())
+                                .startDate(request.startDate())
+                                .estimateHours(request.estimateHours())
                                 .build();
 
                 Task savedTask = taskRepository.save(task);
@@ -102,17 +102,17 @@ public class TaskServiceImpl implements TaskService {
                 Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
 
-                task.setTitle(request.getTitle());
-                task.setDescription(request.getDescription());
-                task.setStatus(request.getStatus());
-                task.setStartDate(request.getStartDate());
-                task.setDueDate(request.getDueDate());
-                task.setEstimateHours(request.getEstimateHours());
+                task.setTitle(request.title());
+                task.setDescription(request.description());
+                task.setStatus(request.status());
+                task.setStartDate(request.startDate());
+                task.setDueDate(request.dueDate());
+                task.setEstimateHours(request.estimateHours());
 
-                if (request.getAssigneeId() != null) {
-                        User assignee = userRepository.findById(request.getAssigneeId())
+                if (request.assigneeId() != null) {
+                        User assignee = userRepository.findById(request.assigneeId())
                                         .orElseThrow(() -> new ResourceNotFoundException("User", "id",
-                                                        request.getAssigneeId()));
+                                                        request.assigneeId()));
                         task.setAssignee(assignee);
                 } else {
                         task.setAssignee(null);

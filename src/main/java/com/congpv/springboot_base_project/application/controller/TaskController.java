@@ -32,7 +32,7 @@ public class TaskController {
             Authentication authentication) {
         String reporterUsername = authentication.getName();
         TaskResponseDto task = taskService.createTask(projectId, request, reporterUsername);
-        emailService.sendNewTaskNotification("congpv24@gmail.com", task.getTitle(), reporterUsername);
+        emailService.sendNewTaskNotification("congpv24@gmail.com", task.title(), reporterUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(task));
     }
 

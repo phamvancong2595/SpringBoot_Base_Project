@@ -44,8 +44,8 @@ public class ProjectServiceImpl implements ProjectService {
         public ProjectResponseDto createProject(ProjectRequestDto dto) {
                 // 1. Tạo Project
                 Project project = Project.builder()
-                                .name(dto.getName())
-                                .description(dto.getDescription())
+                                .name(dto.name())
+                                .description(dto.description())
                                 .build();
                 Project saved = projectRepository.save(project);
 
@@ -116,13 +116,13 @@ public class ProjectServiceImpl implements ProjectService {
         @CacheEvict(value = "projects", key = "#projectId")
         public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
                 Project project = getProject(projectId);
-                if (Strings.isNotBlank(request.getName())) {
-                        project.setName(request.getName());
+                if (Strings.isNotBlank(request.name())) {
+                        project.setName(request.name());
                 }
-                if (Strings.isNotBlank(request.getDescription())) {
-                        project.setDescription(request.getDescription());
+                if (Strings.isNotBlank(request.description())) {
+                        project.setDescription(request.description());
                 }
-                if (Strings.isNotBlank(request.getName()) || Strings.isNotBlank(request.getDescription())) {
+                if (Strings.isNotBlank(request.name()) || Strings.isNotBlank(request.description())) {
                         Project saved = projectRepository.save(project);
                         return ProjectResponseDto.builder()
                                         .id(saved.getId())

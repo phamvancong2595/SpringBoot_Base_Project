@@ -82,20 +82,11 @@ public class SecurityConfig {
                 "http://localhost:5173", // Vite (Vue/React) mặc định
                 "http://localhost:4200" // Angular mặc định
         ));
-        // Dành cho lúc Dev (NẾU MUỐN MỞ CHO TẤT CẢ DOMAIN):
-        // configuration.setAllowedOriginPatterns(List.of("*"));
-
         // 2. Cho phép các HTTP method nào
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
         // 3. Cho phép các Header nào (Rất quan trọng để Client có thể gửi JWT lên)
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-
-        // Cho phép client đọc được các header do server trả về (nếu cần)
-        // configuration.setExposedHeaders(List.of("Authorization"));
-
-        // 4. Cho phép gửi Cookie/Credentials (Bắt buộc phải là true nếu Frontend có
-        // dùng credentials, khi bật cái này thì AllowedOrigins không được để là "*")
+        // 4. Cho phép gửi Cookie/Credentials
         configuration.setAllowCredentials(true);
 
         // 5. Áp dụng cấu hình này cho toàn bộ endpoint (/**)

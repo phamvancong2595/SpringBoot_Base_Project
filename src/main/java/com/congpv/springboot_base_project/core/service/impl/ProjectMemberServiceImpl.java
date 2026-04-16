@@ -33,14 +33,14 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
         public void addMember(Long projectId, ProjectMemberRequestDto dto) {
                 Project project = projectRepo.findById(projectId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
-                User user = userRepo.findByUsername(dto.getUsername())
+                User user = userRepo.findByUsername(dto.username())
                                 .orElseThrow(() -> new ResourceNotFoundException("User", "username",
-                                                dto.getUsername()));
+                                                dto.username()));
 
                 ProjectMember member = ProjectMember.builder()
                                 .project(project)
                                 .user(user)
-                                .role(ProjectRole.valueOf(dto.getRole()))
+                                .role(ProjectRole.valueOf(dto.role()))
                                 .build();
                 memberRepo.save(member);
         }
