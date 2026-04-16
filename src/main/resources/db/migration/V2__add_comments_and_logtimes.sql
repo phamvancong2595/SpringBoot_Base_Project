@@ -1,4 +1,3 @@
--- Bảng comments: Lưu bình luận của user trong task
 CREATE TABLE comments (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL,
@@ -10,7 +9,6 @@ CREATE TABLE comments (
     CONSTRAINT fk_comments_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Bảng log_times: Lưu thời gian làm việc (Worklog)
 CREATE TABLE log_times (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     hours_spent DOUBLE NOT NULL, -- Số giờ đã làm (vd: 2.5 giờ)
