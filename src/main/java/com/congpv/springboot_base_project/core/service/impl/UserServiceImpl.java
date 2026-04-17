@@ -37,6 +37,7 @@ public class UserServiceImpl implements UserService {
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .fullName(request.fullName())
+                .role(request.role())
                 .build();
 
         User savedUser = userRepository.save(user);

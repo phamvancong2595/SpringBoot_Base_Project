@@ -1,3 +1,12 @@
 package com.congpv.springboot_base_project.shared.dto;
-public record ProjectMemberRequestDto(String username, String role) {
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
+public record ProjectMemberRequestDto(
+        @NotBlank(message = "User name cannot blank")
+        String username,
+        @NotBlank(message = "role cannot blank")
+        @Pattern(regexp = "PROJECT_MANAGER|DEVELOPER|TESTER|VIEWER", message = "role must be one of: PROJECT_MANAGER|DEVELOPER|TESTER|VIEWER")
+        String role) {
 }
