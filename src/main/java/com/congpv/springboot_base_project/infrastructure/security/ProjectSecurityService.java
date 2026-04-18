@@ -6,6 +6,7 @@ import com.congpv.springboot_base_project.infrastructure.repository.ProjectMembe
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 @Service("projectSecurity")

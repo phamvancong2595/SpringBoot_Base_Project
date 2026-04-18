@@ -67,8 +67,9 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(500, "Internal server error: " + ex.getMessage()));
     }
+
     @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<Map<String,String>> handleException(HandlerMethodValidationException exception) {
+    public ResponseEntity<Map<String, String>> handleException(HandlerMethodValidationException exception) {
         Map<String, String> errors = new HashMap<>();
         List<ParameterValidationResult> results = exception.getParameterValidationResults();
         results.forEach(result -> {

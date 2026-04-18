@@ -2,13 +2,14 @@ package com.congpv.springboot_base_project.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
+
 import java.time.LocalDateTime;
 import java.util.Map;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ApiResponse<T>( int status, String message, T data, Map<String, String> errors,
-         LocalDateTime timestamp) {
+public record ApiResponse<T>(int status, String message, T data, Map<String, String> errors,
+                             LocalDateTime timestamp) {
 
     public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()

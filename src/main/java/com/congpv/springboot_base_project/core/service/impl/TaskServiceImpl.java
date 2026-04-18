@@ -30,121 +30,121 @@ import java.util.stream.Collectors;
 @Transactional
 public class TaskServiceImpl implements TaskService {
 
-        private final TaskRepository taskRepository;
-        private final ProjectRepository projectRepository;
-        private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
 
-        @Override
-        public TaskResponseDto createTask(Long projectId, TaskRequestDto request, String reporterUsername) {
-                Project project = projectRepository.findById(projectId)
-                                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
+    @Override
+    public TaskResponseDto createTask(Long projectId, TaskRequestDto request, String reporterUsername) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
 
-                User reporter = userRepository.findByUsername(reporterUsername)
-                                .orElseThrow(() -> new ResourceNotFoundException("User", "username", reporterUsername));
+        User reporter = userRepository.findByUsername(reporterUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", reporterUsername));
 
-                User assignee = null;
-                if (request.assigneeId() != null) {
-                        assignee = userRepository.findById(request.assigneeId())
-                                        .orElseThrow(() -> new ResourceNotFoundException("User", "id",
-                                                        request.assigneeId()));
-                }
-
-                Task task = Task.builder()
-                                .title(request.title())
-                                .description(request.description())
-                                .status(request.status())
-                                .project(project)
-                                .reporter(reporter)
-                                .assignee(assignee)
-                                .dueDate(request.dueDate())
-                                .startDate(request.startDate())
-                                .estimateHours(request.estimateHours())
-                                .build();
-
-                Task savedTask = taskRepository.save(task);
-                return mapToDto(savedTask);
+        User assignee = null;
+        if (request.assigneeId() != null) {
+            assignee = userRepository.findById(request.assigneeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "id",
+                            request.assigneeId()));
         }
 
-        @Override
-        @Transactional(readOnly = true)
-        @Cacheable(value = "tasks", key = "#projectId + '-' + #taskId")
-        public TaskResponseDto getTaskById(Long projectId, Long taskId) {
-                Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
-                                .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
-                return mapToDto(task);
+        Task task = Task.builder()
+                .title(request.title())
+                .description(request.description())
+                .status(request.status())
+                .project(project)
+                .reporter(reporter)
+                .assignee(assignee)
+                .dueDate(request.dueDate())
+                .startDate(request.startDate())
+                .estimateHours(request.estimateHours())
+                .build();
+
+        Task savedTask = taskRepository.save(task);
+        return mapToDto(savedTask);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "tasks", key = "#projectId + '-' + #taskId")
+    public TaskResponseDto getTaskById(Long projectId, Long taskId) {
+        Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
+        return mapToDto(task);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "tasks", key = "#projectId + '-' + #pageNo + '-' + #pageSize")
+    public PageResponse<TaskResponseDto> getTasksByProject(Long projectId, int pageNo, int pageSize) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new ResourceNotFoundException("Project", "id", projectId);
+        }
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Task> taskPage = taskRepository.findByProjectIdAndIsDeletedFalse(projectId, pageable);
+        List<TaskResponseDto> content = taskPage.getContent().stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+        return PageResponse.<TaskResponseDto>builder()
+                .content(content)
+                .page(taskPage.getNumber())
+                .size(taskPage.getSize())
+                .totalElements(taskPage.getTotalElements())
+                .totalPages(taskPage.getTotalPages())
+                .isLast(taskPage.isLast())
+                .build();
+    }
+
+    @Override
+    @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
+    public TaskResponseDto updateTask(Long projectId, Long taskId, TaskRequestDto request) {
+        Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
+
+        task.setTitle(request.title());
+        task.setDescription(request.description());
+        task.setStatus(request.status());
+        task.setStartDate(request.startDate());
+        task.setDueDate(request.dueDate());
+        task.setEstimateHours(request.estimateHours());
+
+        if (request.assigneeId() != null) {
+            User assignee = userRepository.findById(request.assigneeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "id",
+                            request.assigneeId()));
+            task.setAssignee(assignee);
+        } else {
+            task.setAssignee(null);
         }
 
-        @Override
-        @Transactional(readOnly = true)
-        @Cacheable(value = "tasks", key = "#projectId + '-' + #pageNo + '-' + #pageSize")
-        public PageResponse<TaskResponseDto> getTasksByProject(Long projectId, int pageNo, int pageSize) {
-                if (!projectRepository.existsById(projectId)) {
-                        throw new ResourceNotFoundException("Project", "id", projectId);
-                }
-                Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
-                Page<Task> taskPage = taskRepository.findByProjectIdAndIsDeletedFalse(projectId, pageable);
-                List<TaskResponseDto> content = taskPage.getContent().stream()
-                                .map(this::mapToDto)
-                                .collect(Collectors.toList());
-                return PageResponse.<TaskResponseDto>builder()
-                                .content(content)
-                                .page(taskPage.getNumber())
-                                .size(taskPage.getSize())
-                                .totalElements(taskPage.getTotalElements())
-                                .totalPages(taskPage.getTotalPages())
-                                .isLast(taskPage.isLast())
-                                .build();
-        }
+        Task updatedTask = taskRepository.save(task);
+        return mapToDto(updatedTask);
+    }
 
-        @Override
-        @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
-        public TaskResponseDto updateTask(Long projectId, Long taskId, TaskRequestDto request) {
-                Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
-                                .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
+    @Override
+    @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
+    public void deleteTask(Long projectId, Long taskId) {
+        Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
+        task.setDeleted(true);
+        taskRepository.save(task);
+    }
 
-                task.setTitle(request.title());
-                task.setDescription(request.description());
-                task.setStatus(request.status());
-                task.setStartDate(request.startDate());
-                task.setDueDate(request.dueDate());
-                task.setEstimateHours(request.estimateHours());
-
-                if (request.assigneeId() != null) {
-                        User assignee = userRepository.findById(request.assigneeId())
-                                        .orElseThrow(() -> new ResourceNotFoundException("User", "id",
-                                                        request.assigneeId()));
-                        task.setAssignee(assignee);
-                } else {
-                        task.setAssignee(null);
-                }
-
-                Task updatedTask = taskRepository.save(task);
-                return mapToDto(updatedTask);
-        }
-
-        @Override
-        @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
-        public void deleteTask(Long projectId, Long taskId) {
-                Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
-                                .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
-                task.setDeleted(true);
-                taskRepository.save(task);
-        }
-
-        private TaskResponseDto mapToDto(Task task) {
-                return TaskResponseDto.builder()
-                                .id(task.getId())
-                                .title(task.getTitle())
-                                .description(task.getDescription())
-                                .status(task.getStatus())
-                                .projectId(task.getProject().getId())
-                                .reporterUsername(task.getReporter().getUsername())
-                                .assigneeUsername(task.getAssignee() != null ? task.getAssignee().getUsername() : null)
-                                .startDate(task.getStartDate())
-                                .dueDate(task.getDueDate())
-                                .estimateHours(task.getEstimateHours())
-                                .createdAt(task.getCreatedAt())
-                                .updatedAt(task.getUpdatedAt())
-                                .build();
-        }
+    private TaskResponseDto mapToDto(Task task) {
+        return TaskResponseDto.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .status(task.getStatus())
+                .projectId(task.getProject().getId())
+                .reporterUsername(task.getReporter().getUsername())
+                .assigneeUsername(task.getAssignee() != null ? task.getAssignee().getUsername() : null)
+                .startDate(task.getStartDate())
+                .dueDate(task.getDueDate())
+                .estimateHours(task.getEstimateHours())
+                .createdAt(task.getCreatedAt())
+                .updatedAt(task.getUpdatedAt())
+                .build();
+    }
 }

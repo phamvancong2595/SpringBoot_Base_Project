@@ -2,6 +2,7 @@ package com.congpv.springboot_base_project.core.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.HashSet;
 import java.util.Set;
 

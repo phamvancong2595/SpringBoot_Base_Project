@@ -36,113 +36,113 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProjectServiceImpl implements ProjectService {
 
-        private final ProjectRepository projectRepository;
-        private final ProjectMemberRepository projectMemberRepository;
-        private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
+    private final ProjectMemberRepository projectMemberRepository;
+    private final UserRepository userRepository;
 
-        @Override
-        public ProjectResponseDto createProject(ProjectRequestDto dto) {
-                // 1. Tạo Project
-                Project project = Project.builder()
-                                .name(dto.name())
-                                .description(dto.description())
-                                .build();
-                Project saved = projectRepository.save(project);
+    @Override
+    public ProjectResponseDto createProject(ProjectRequestDto dto) {
+        // 1. Tạo Project
+        Project project = Project.builder()
+                .name(dto.name())
+                .description(dto.description())
+                .build();
+        Project saved = projectRepository.save(project);
 
-                // 2. Lấy username của người đang đăng nhập từ JWT
-                String currentUsername = SecurityContextHolder.getContext()
-                                .getAuthentication().getName();
-                User creator = userRepository.findByUsername(currentUsername)
-                                .orElseThrow(() -> new ResourceNotFoundException("User", "username", currentUsername));
+        // 2. Lấy username của người đang đăng nhập từ JWT
+        String currentUsername = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+        User creator = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", currentUsername));
 
-                // 3. Tự động gán người tạo làm PROJECT_MANAGER
-                ProjectMember manager = ProjectMember.builder()
-                                .project(saved)
-                                .user(creator)
-                                .role(ProjectRole.PROJECT_MANAGER)
-                                .build();
-                projectMemberRepository.save(manager);
+        // 3. Tự động gán người tạo làm PROJECT_MANAGER
+        ProjectMember manager = ProjectMember.builder()
+                .project(saved)
+                .user(creator)
+                .role(ProjectRole.PROJECT_MANAGER)
+                .build();
+        projectMemberRepository.save(manager);
 
-                return ProjectResponseDto.builder()
-                                .id(saved.getId())
-                                .name(saved.getName())
-                                .description(saved.getDescription())
-                                .build();
+        return ProjectResponseDto.builder()
+                .id(saved.getId())
+                .name(saved.getName())
+                .description(saved.getDescription())
+                .build();
+    }
+
+    public Project getProject(Long id) {
+        return projectRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
+    }
+
+    @Override
+    @Cacheable(value = "projects", key = "#projectId")
+    public ProjectResponseDto getProjectById(Long projectId) {
+        Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
+        return ProjectResponseDto.builder()
+                .id(project.getId())
+                .name(project.getName())
+                .description(project.getDescription())
+                .build();
+    }
+
+    @Override
+    @Cacheable(value = "projects", key = "#pageNo + '-' + #pageSize")
+    public PageResponse<ProjectResponseDto> getAllProjects(int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
+
+        Page<Project> projectPage = projectRepository.findAllByIsDeletedFalse(pageable);
+
+        List<ProjectResponseDto> content = projectPage.getContent().stream()
+                .map(project -> ProjectResponseDto.builder()
+                        .id(project.getId())
+                        .name(project.getName())
+                        .description(project.getDescription())
+                        .build())
+                .collect(Collectors.toList());
+        return PageResponse.<ProjectResponseDto>builder()
+                .content(content)
+                .page(projectPage.getNumber())
+                .size(projectPage.getSize())
+                .totalElements(projectPage.getTotalElements())
+                .totalPages(projectPage.getTotalPages())
+                .isLast(projectPage.isLast())
+                .build();
+    }
+
+    @Override
+    @CacheEvict(value = "projects", key = "#projectId")
+    public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
+        Project project = getProject(projectId);
+        if (Strings.isNotBlank(request.name())) {
+            project.setName(request.name());
+        }
+        if (Strings.isNotBlank(request.description())) {
+            project.setDescription(request.description());
+        }
+        if (Strings.isNotBlank(request.name()) || Strings.isNotBlank(request.description())) {
+            Project saved = projectRepository.save(project);
+            return ProjectResponseDto.builder()
+                    .id(saved.getId())
+                    .name(saved.getName())
+                    .description(saved.getDescription())
+                    .build();
+        }
+        return null;
+    }
+
+    @Override
+    @CacheEvict(value = "projects", key = "#projectId")
+    public void deleteProject(Long projectId) {
+        Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
+        if (project != null) {
+            project.setDeleted(true);
+            projectRepository.save(project);
         }
 
-        public Project getProject(Long id) {
-                return projectRepository.findByIdAndIsDeletedFalse(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
-        }
-
-        @Override
-        @Cacheable(value = "projects", key = "#projectId")
-        public ProjectResponseDto getProjectById(Long projectId) {
-                Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
-                                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
-                return ProjectResponseDto.builder()
-                                .id(project.getId())
-                                .name(project.getName())
-                                .description(project.getDescription())
-                                .build();
-        }
-
-        @Override
-        @Cacheable(value = "projects", key = "#pageNo + '-' + #pageSize")
-        public PageResponse<ProjectResponseDto> getAllProjects(int pageNo, int pageSize) {
-
-                Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
-
-                Page<Project> projectPage = projectRepository.findAllByIsDeletedFalse(pageable);
-
-                List<ProjectResponseDto> content = projectPage.getContent().stream()
-                                .map(project -> ProjectResponseDto.builder()
-                                                .id(project.getId())
-                                                .name(project.getName())
-                                                .description(project.getDescription())
-                                                .build())
-                                .collect(Collectors.toList());
-                return PageResponse.<ProjectResponseDto>builder()
-                                .content(content)
-                                .page(projectPage.getNumber())
-                                .size(projectPage.getSize())
-                                .totalElements(projectPage.getTotalElements())
-                                .totalPages(projectPage.getTotalPages())
-                                .isLast(projectPage.isLast())
-                                .build();
-        }
-
-        @Override
-        @CacheEvict(value = "projects", key = "#projectId")
-        public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
-                Project project = getProject(projectId);
-                if (Strings.isNotBlank(request.name())) {
-                        project.setName(request.name());
-                }
-                if (Strings.isNotBlank(request.description())) {
-                        project.setDescription(request.description());
-                }
-                if (Strings.isNotBlank(request.name()) || Strings.isNotBlank(request.description())) {
-                        Project saved = projectRepository.save(project);
-                        return ProjectResponseDto.builder()
-                                        .id(saved.getId())
-                                        .name(saved.getName())
-                                        .description(saved.getDescription())
-                                        .build();
-                }
-                return null;
-        }
-
-        @Override
-        @CacheEvict(value = "projects", key = "#projectId")
-        public void deleteProject(Long projectId) {
-                Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
-                                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
-                if (project != null) {
-                        project.setDeleted(true);
-                        projectRepository.save(project);
-                }
-
-        }
+    }
 
 }

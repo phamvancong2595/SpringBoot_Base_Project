@@ -11,12 +11,12 @@ import com.congpv.springboot_base_project.shared.enums.UserRole;
 
 @Builder
 public record UserResponseDto(
-         Long id,
-         String username,
-         String email,
-         String fullName,
-         Boolean active,
-         UserRole role,
-         LocalDateTime createdAt,
-         LocalDateTime updatedAt) {
+        Long id,
+        String username,
+        String email,
+        String fullName,
+        Boolean active,
+        UserRole role,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt) {
 }

@@ -3,7 +3,7 @@ spring:
     name: springboot-base-project
   
   profiles:
-    active: dev 
+    active: dev
 
 dotenv:
   enabled: true

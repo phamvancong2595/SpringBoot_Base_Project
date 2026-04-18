@@ -4,12 +4,12 @@ spring:
     username: admin_jira
     password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: 20 
+      maximum-pool-size: 20
   
   jpa:
     hibernate:
-      ddl-auto: validate 
-    show-sql: false      
+      ddl-auto: validate
+    show-sql: false
   
   mail:
     host: smtp.gmail.com
