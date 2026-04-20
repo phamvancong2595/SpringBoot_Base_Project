@@ -11,9 +11,12 @@ import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -21,9 +24,16 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-
+    private final CompromisedPasswordChecker compromisedPasswordChecker;
     @PostMapping
-    public ResponseEntity<ApiResponse<UserResponseDto>> createUser(@Valid @RequestBody UserRequestDto request) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequestDto request) {
+        CompromisedPasswordDecision decision = compromisedPasswordChecker
+                .check(request.password());
+        if (decision.isCompromised()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("password", "Choose a strong password"));
+        }
         UserResponseDto user = userService.createUser(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
