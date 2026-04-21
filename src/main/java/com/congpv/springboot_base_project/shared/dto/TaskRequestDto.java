@@ -2,6 +2,7 @@ package com.congpv.springboot_base_project.shared.dto;
 
 import java.time.LocalDateTime;
 
+import com.congpv.springboot_base_project.shared.enums.TaskPriority;
 import com.congpv.springboot_base_project.shared.enums.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,5 +16,7 @@ public record TaskRequestDto(
         Long assigneeId,
         LocalDateTime startDate,
         LocalDateTime dueDate,
-        Integer estimateHours) {
+        Integer estimateHours,
+        TaskPriority priority
+) {
 }

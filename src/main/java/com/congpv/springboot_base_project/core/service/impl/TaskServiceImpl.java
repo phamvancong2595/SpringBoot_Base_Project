@@ -59,6 +59,7 @@ public class TaskServiceImpl implements TaskService {
                 .dueDate(request.dueDate())
                 .startDate(request.startDate())
                 .estimateHours(request.estimateHours())
+                .priority(request.priority())
                 .build();
 
         Task savedTask = taskRepository.save(task);

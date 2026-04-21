@@ -1,9 +1,9 @@
 spring:
   application:
-    name: springboot-base-project
+    name: ${APP_NAME}
   
   profiles:
-    active: dev
+    active: ${APP_ENV}
 
 dotenv:
   enabled: true
