@@ -25,15 +25,9 @@ public class UserController {
 
     private final UserService userService;
     private final CompromisedPasswordChecker compromisedPasswordChecker;
+
     @PostMapping
     public ResponseEntity<?> createUser(@Valid @RequestBody UserRequestDto request) {
-        CompromisedPasswordDecision decision = compromisedPasswordChecker
-                .check(request.password());
-        if (decision.isCompromised()) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("password", "Choose a strong password"));
-        }
         UserResponseDto user = userService.createUser(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
