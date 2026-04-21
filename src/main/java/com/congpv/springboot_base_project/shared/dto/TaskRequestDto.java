@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.congpv.springboot_base_project.shared.enums.TaskPriority;
 import com.congpv.springboot_base_project.shared.enums.TaskStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,7 +15,9 @@ public record TaskRequestDto(
         @NotNull(message = "Status cannot be null")
         TaskStatus status,
         Long assigneeId,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
         LocalDateTime startDate,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
         LocalDateTime dueDate,
         Integer estimateHours,
         TaskPriority priority
