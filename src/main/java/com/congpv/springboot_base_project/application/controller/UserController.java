@@ -6,6 +6,7 @@ import com.congpv.springboot_base_project.shared.dto.UserResponseDto;
 import com.congpv.springboot_base_project.core.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserResponseDto>> getUserById(@PathVariable @NotBlank(message = "id cannot blank") Long id) {
+    public ResponseEntity<ApiResponse<UserResponseDto>> getUserById(@PathVariable @NotNull(message = "id cannot null") Long id) {
         UserResponseDto user = userService.getUserById(id);
         return ResponseEntity.ok(ApiResponse.success(user));
     }

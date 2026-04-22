@@ -3,6 +3,7 @@ package com.congpv.springboot_base_project.infrastructure.config;
 import com.congpv.springboot_base_project.infrastructure.security.CustomUserDetailsService;
 import com.congpv.springboot_base_project.infrastructure.security.JwtAuthenticationEntryPoint;
 import com.congpv.springboot_base_project.infrastructure.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -45,6 +46,9 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     @Qualifier("publicPaths")
     private final String[] publicPaths;
+    @Qualifier("securedPaths")
+    private final String[] securedPaths;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -64,20 +68,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(publicPaths).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll() // Cho phép tạo user ko cần token
-                        .anyRequest().authenticated());
-
-        http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+                        .requestMatchers(publicPaths).permitAll()
+                        .requestMatchers(securedPaths).authenticated()
+                        .anyRequest().denyAll()
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Access Denied\", \"message\": \"You don't have permission to access this resource\"}");
+                        }))
+                .build();
     }
 
     @Bean
@@ -103,6 +115,7 @@ public class SecurityConfig {
 
         return source;
     }
+
     @Bean
     public CompromisedPasswordChecker compromisedPasswordChecker() {
         return new HaveIBeenPwnedRestApiPasswordChecker();
