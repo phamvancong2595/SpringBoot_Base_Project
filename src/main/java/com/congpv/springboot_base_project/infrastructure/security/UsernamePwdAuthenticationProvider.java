@@ -1,5 +1,6 @@
 package com.congpv.springboot_base_project.infrastructure.security;
 
+import com.congpv.springboot_base_project.core.entity.Role;
 import com.congpv.springboot_base_project.core.entity.User;
 import com.congpv.springboot_base_project.infrastructure.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,8 +33,9 @@ public class UsernamePwdAuthenticationProvider implements AuthenticationProvider
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User details not found for the user: " + username)
                 );
-        List<SimpleGrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(user.getRole().toString()));
+        List<Role> roles = new ArrayList<>(user.getRoles());
+        List<SimpleGrantedAuthority> authorities = roles.stream()
+                .map(t -> new SimpleGrantedAuthority(t.getCode())).toList();
         if (passwordEncoder.matches(pwd, user.getPassword())) {
             return new UsernamePasswordAuthenticationToken(user, null, authorities);
         } else {

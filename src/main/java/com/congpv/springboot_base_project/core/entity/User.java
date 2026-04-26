@@ -1,12 +1,14 @@
 package com.congpv.springboot_base_project.core.entity;
 
-import com.congpv.springboot_base_project.shared.enums.UserRole;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
@@ -43,8 +45,13 @@ public class User extends BaseEntity {
     @Builder.Default
     private Boolean active = true;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", length = 20)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     @Builder.Default
-    private UserRole role = UserRole.ROLE_USER;
+    private Set<Role> roles = new HashSet<>();
+
 }

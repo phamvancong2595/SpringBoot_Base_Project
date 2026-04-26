@@ -1,5 +1,7 @@
 package com.congpv.springboot_base_project.core.service.impl;
 
+import com.congpv.springboot_base_project.core.entity.Role;
+import com.congpv.springboot_base_project.core.service.RoleService;
 import com.congpv.springboot_base_project.shared.dto.UserRequestDto;
 import com.congpv.springboot_base_project.shared.dto.UserResponseDto;
 import com.congpv.springboot_base_project.core.entity.User;
@@ -12,7 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +27,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
 
     @Override
     public UserResponseDto createUser(UserRequestDto request) {
@@ -31,13 +37,21 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(request.email())) {
             throw new BadRequestException("Email already exists: " + request.email());
         }
-
+        List<String> roles =request.roles();
+        Set<Role> userRoles = new HashSet<>();
+        for(String r: roles) {
+            Role role = roleService.getRoleByCode(r);
+            if(role == null) {
+                continue;
+            }
+            userRoles.add(role);
+        }
         User user = User.builder()
                 .username(request.username())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .fullName(request.fullName())
-                .role(request.role())
+                .roles(userRoles)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -110,7 +124,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .active(user.getActive())
-                .role(user.getRole())
+                .roles(user.getRoles().stream().map(Role::getCode).toList())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

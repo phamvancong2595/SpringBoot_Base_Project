@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.congpv.springboot_base_project.shared.enums.UserRole;
 
@@ -16,7 +17,7 @@ public record UserResponseDto(
         String email,
         String fullName,
         Boolean active,
-        UserRole role,
+        List<String> roles,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {
 }

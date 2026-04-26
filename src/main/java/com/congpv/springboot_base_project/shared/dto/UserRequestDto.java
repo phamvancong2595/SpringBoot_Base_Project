@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
+import java.util.List;
+
 @Builder
 public record UserRequestDto(
         @NotBlank(message = "username cannot blank")
@@ -18,6 +20,6 @@ public record UserRequestDto(
         @Size(min = 8, max = 20, message = "password must between 8 to 20 character")
         String password,
         String fullName,
-        UserRole role,
+        List<String> roles,
         Boolean active) {
 }
