@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.congpv.springboot_base_project.shared.enums.UserRole;
-
 @Builder
 public record UserResponseDto(
         Long id,
