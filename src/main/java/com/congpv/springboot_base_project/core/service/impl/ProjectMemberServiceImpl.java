@@ -1,11 +1,13 @@
 package com.congpv.springboot_base_project.core.service.impl;
 
+import com.congpv.springboot_base_project.core.entity.ProjectRole;
+import com.congpv.springboot_base_project.infrastructure.repository.ProjectRoleRepository;
+import com.congpv.springboot_base_project.shared.constant.ApplicationConstants;
 import com.congpv.springboot_base_project.shared.dto.ProjectMemberRequestDto;
 import com.congpv.springboot_base_project.shared.dto.ProjectMemberResponseDto;
 import com.congpv.springboot_base_project.core.entity.Project;
 import com.congpv.springboot_base_project.core.entity.ProjectMember;
 import com.congpv.springboot_base_project.core.entity.User;
-import com.congpv.springboot_base_project.shared.enums.ProjectRole;
 import com.congpv.springboot_base_project.shared.exception.ResourceNotFoundException;
 import com.congpv.springboot_base_project.infrastructure.repository.ProjectMemberRepository;
 import com.congpv.springboot_base_project.infrastructure.repository.ProjectRepository;
@@ -28,6 +30,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     private final ProjectMemberRepository memberRepo;
     private final ProjectRepository projectRepo;
     private final UserRepository userRepo;
+    private final ProjectRoleRepository projectRoleRepository;
 
     @Override
     public void addMember(Long projectId, ProjectMemberRequestDto dto) {
@@ -36,11 +39,11 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
         User user = userRepo.findByUsername(dto.username())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username",
                         dto.username()));
-
+        ProjectRole role = projectRoleRepository.findByCode(dto.role());
         ProjectMember member = ProjectMember.builder()
                 .project(project)
                 .user(user)
-                .role(ProjectRole.valueOf(dto.role()))
+                .role(role)
                 .build();
         memberRepo.save(member);
     }
@@ -51,7 +54,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
         return members.stream()
                 .map(member -> new ProjectMemberResponseDto(
                         member.getUser().getUsername(),
-                        member.getRole().name()))
+                        member.getRole().getCode()))
                 .collect(Collectors.toList());
 
     }

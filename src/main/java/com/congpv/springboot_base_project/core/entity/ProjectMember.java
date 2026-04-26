@@ -1,7 +1,7 @@
 package com.congpv.springboot_base_project.core.entity;
 
-import com.congpv.springboot_base_project.shared.enums.ProjectRole;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -21,7 +21,8 @@ public class ProjectMember extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
     private ProjectRole role;
 }

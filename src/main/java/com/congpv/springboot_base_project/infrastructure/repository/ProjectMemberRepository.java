@@ -1,7 +1,7 @@
 package com.congpv.springboot_base_project.infrastructure.repository;
 
 import com.congpv.springboot_base_project.core.entity.ProjectMember;
-import com.congpv.springboot_base_project.shared.enums.ProjectRole;
+import com.congpv.springboot_base_project.core.entity.ProjectRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

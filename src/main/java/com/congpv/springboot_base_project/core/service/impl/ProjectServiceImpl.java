@@ -1,20 +1,20 @@
 package com.congpv.springboot_base_project.core.service.impl;
 
+import com.congpv.springboot_base_project.core.entity.ProjectRole;
+import com.congpv.springboot_base_project.infrastructure.repository.ProjectRoleRepository;
+import com.congpv.springboot_base_project.shared.constant.ApplicationConstants;
 import com.congpv.springboot_base_project.shared.dto.PageResponse;
 import com.congpv.springboot_base_project.shared.dto.ProjectRequestDto;
 import com.congpv.springboot_base_project.shared.dto.ProjectResponseDto;
 import com.congpv.springboot_base_project.core.entity.Project;
 import com.congpv.springboot_base_project.core.entity.ProjectMember;
-import com.congpv.springboot_base_project.core.entity.Task;
 import com.congpv.springboot_base_project.core.entity.User;
-import com.congpv.springboot_base_project.shared.enums.ProjectRole;
 import com.congpv.springboot_base_project.shared.exception.ResourceNotFoundException;
 import com.congpv.springboot_base_project.infrastructure.repository.ProjectMemberRepository;
 import com.congpv.springboot_base_project.infrastructure.repository.ProjectRepository;
 import com.congpv.springboot_base_project.infrastructure.repository.UserRepository;
 import com.congpv.springboot_base_project.core.service.ProjectService;
 
-import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -39,6 +39,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final UserRepository userRepository;
+    private final ProjectRoleRepository projectRoleRepository;
 
     @Override
     public ProjectResponseDto createProject(ProjectRequestDto dto) {
@@ -56,10 +57,11 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", currentUsername));
 
         // 3. Tự động gán người tạo làm PROJECT_MANAGER
+        ProjectRole role = projectRoleRepository.findByCode(ApplicationConstants.MANAGER);
         ProjectMember manager = ProjectMember.builder()
                 .project(saved)
                 .user(creator)
-                .role(ProjectRole.PROJECT_MANAGER)
+                .role(role)
                 .build();
         projectMemberRepository.save(manager);
 
