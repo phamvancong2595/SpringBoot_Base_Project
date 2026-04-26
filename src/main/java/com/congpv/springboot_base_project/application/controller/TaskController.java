@@ -43,7 +43,7 @@ public class TaskController {
             @RequestParam(value = "size", defaultValue = "10", required = false) int size,
             @PathVariable Long projectId) {
         PageResponse<TaskResponseDto> response = taskService.getTasksByProject(projectId, page, size);
-        return ResponseEntity.ok(ApiResponse.success("Lấy danh sách công việc thành công", response));
+        return ResponseEntity.ok(ApiResponse.success("Get task successfully", response));
     }
 
     @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")

@@ -17,13 +17,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-      default_batch_fetch_size=${DEFAULT_BATCH_FETCH_SIZE:50}:
+      default_batch_fetch_size: ${DEFAULT_BATCH_FETCH_SIZE:50}
     show-sql: true
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    baseline-version: 0
-    locations: classpath:db/migration
+
 logging:
   level:
     org.hibernate.SQL: DEBUG

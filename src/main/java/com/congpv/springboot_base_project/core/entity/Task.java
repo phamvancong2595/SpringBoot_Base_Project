@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import com.congpv.springboot_base_project.shared.enums.TaskPriority;
-import com.congpv.springboot_base_project.shared.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,8 +31,9 @@ public class Task extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "status_id", nullable = false)
     private TaskStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)

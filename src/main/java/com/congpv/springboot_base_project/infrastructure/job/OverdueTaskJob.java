@@ -16,7 +16,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@DependsOn("flyway")
 public class OverdueTaskJob {
 
     private final TaskRepository taskRepository;
@@ -27,7 +26,7 @@ public class OverdueTaskJob {
      * "0 0 0 * * ?" -> Chạy vào đúng 00:00:00 (nửa đêm) mỗi ngày
      * "0 * * * * ?" -> Chạy mỗi phút 1 lần
      */
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     @Transactional(readOnly = true)
     public void scanAndNotifyOverdueTasks() {
         log.info("--- BẮT ĐẦU CRON JOB QUÉT TASK QUÁ HẠN ---");

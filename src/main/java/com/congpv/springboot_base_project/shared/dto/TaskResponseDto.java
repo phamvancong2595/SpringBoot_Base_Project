@@ -1,8 +1,7 @@
 package com.congpv.springboot_base_project.shared.dto;
 
-import com.congpv.springboot_base_project.shared.enums.TaskStatus;
+import com.congpv.springboot_base_project.core.entity.TaskStatus;
 import lombok.Builder;
-import lombok.Data;
 
 import java.time.LocalDateTime;
 
