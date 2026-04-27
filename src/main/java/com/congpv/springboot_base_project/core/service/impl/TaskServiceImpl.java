@@ -1,7 +1,6 @@
 package com.congpv.springboot_base_project.core.service.impl;
 
 import com.congpv.springboot_base_project.shared.dto.PageResponse;
-import com.congpv.springboot_base_project.shared.dto.ProjectResponseDto;
 import com.congpv.springboot_base_project.shared.dto.TaskRequestDto;
 import com.congpv.springboot_base_project.shared.dto.TaskResponseDto;
 import com.congpv.springboot_base_project.core.entity.Project;
@@ -69,7 +68,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "tasks", key = "#projectId + '-' + #taskId")
-    public TaskResponseDto getTaskById(Long projectId, Long taskId) {
+    public TaskResponseDto getTaskById(Long taskId, Long projectId) {
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
         return mapToDto(task);
@@ -130,6 +129,11 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
         task.setDeleted(true);
         taskRepository.save(task);
+    }
+
+    @Override
+    public Task findTaskById(Long id) {
+        return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
     }
 
     private TaskResponseDto mapToDto(Task task) {

@@ -1,5 +1,6 @@
 package com.congpv.springboot_base_project.core.service;
 
+import com.congpv.springboot_base_project.core.entity.User;
 import com.congpv.springboot_base_project.shared.dto.UserRequestDto;
 import com.congpv.springboot_base_project.shared.dto.UserResponseDto;
 
@@ -18,4 +19,6 @@ public interface UserService {
     UserResponseDto updateUser(Long id, UserRequestDto request);
 
     void deleteUser(Long id);
+
+    User getUserByName(String name);
 }

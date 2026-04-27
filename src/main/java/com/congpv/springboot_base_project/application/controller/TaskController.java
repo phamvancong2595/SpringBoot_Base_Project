@@ -2,10 +2,8 @@ package com.congpv.springboot_base_project.application.controller;
 
 import com.congpv.springboot_base_project.shared.dto.ApiResponse;
 import com.congpv.springboot_base_project.shared.dto.PageResponse;
-import com.congpv.springboot_base_project.shared.dto.ProjectResponseDto;
 import com.congpv.springboot_base_project.shared.dto.TaskRequestDto;
 import com.congpv.springboot_base_project.shared.dto.TaskResponseDto;
-import com.congpv.springboot_base_project.core.entity.Task;
 import com.congpv.springboot_base_project.core.service.EmailService;
 import com.congpv.springboot_base_project.core.service.TaskService;
 import jakarta.validation.Valid;

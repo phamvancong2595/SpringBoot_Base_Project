@@ -1,6 +1,7 @@
 package com.congpv.springboot_base_project.shared.util;
 
 import com.congpv.springboot_base_project.core.entity.User;
+import com.congpv.springboot_base_project.infrastructure.security.CustomUserDetails;
 import com.congpv.springboot_base_project.shared.constant.ApplicationConstants;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,8 +20,10 @@ public class ApplicationUtil {
         String username;
         if (principal instanceof User user) {
             username = user.getUsername();
+        } else if (principal instanceof CustomUserDetails){
+            username = ((CustomUserDetails) principal).getUsername(); // fallback
         } else {
-            username = principal.toString(); // fallback
+            username = principal != null ? principal.toString(): "";
         }
         return username;
     }
