@@ -1,7 +1,10 @@
 package com.congpv.springboot_base_project.core.service.impl;
 
 import com.congpv.springboot_base_project.core.entity.ProjectRole;
-import com.congpv.springboot_base_project.infrastructure.repository.ProjectRoleRepository;
+import com.congpv.springboot_base_project.core.service.ProjectMemberService;
+import com.congpv.springboot_base_project.core.service.ProjectRoleService;
+import com.congpv.springboot_base_project.core.service.UserService;
+import com.congpv.springboot_base_project.infrastructure.repository.ProjectMemberRepository;
 import com.congpv.springboot_base_project.shared.constant.ApplicationConstants;
 import com.congpv.springboot_base_project.shared.dto.PageResponse;
 import com.congpv.springboot_base_project.shared.dto.ProjectRequestDto;
@@ -10,9 +13,7 @@ import com.congpv.springboot_base_project.core.entity.Project;
 import com.congpv.springboot_base_project.core.entity.ProjectMember;
 import com.congpv.springboot_base_project.core.entity.User;
 import com.congpv.springboot_base_project.shared.exception.ResourceNotFoundException;
-import com.congpv.springboot_base_project.infrastructure.repository.ProjectMemberRepository;
 import com.congpv.springboot_base_project.infrastructure.repository.ProjectRepository;
-import com.congpv.springboot_base_project.infrastructure.repository.UserRepository;
 import com.congpv.springboot_base_project.core.service.ProjectService;
 
 import lombok.RequiredArgsConstructor;
@@ -38,11 +39,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
-    private final UserRepository userRepository;
-    private final ProjectRoleRepository projectRoleRepository;
+    private final UserService userService;
+    private final ProjectRoleService projectRoleService;
 
     @Override
     @Transactional
+    @CacheEvict(value = "projects", allEntries = true)
     public ProjectResponseDto createProject(ProjectRequestDto dto) {
         // 1. Tạo Project
         Project project = Project.builder()
@@ -54,11 +56,10 @@ public class ProjectServiceImpl implements ProjectService {
         // 2. Lấy username của người đang đăng nhập từ JWT
         String currentUsername = SecurityContextHolder.getContext()
                 .getAuthentication().getName();
-        User creator = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", currentUsername));
+        User creator = userService.getUserByName(currentUsername);
 
         // 3. Tự động gán người tạo làm PROJECT_MANAGER
-        ProjectRole role = projectRoleRepository.findByCode(ApplicationConstants.MANAGER);
+        ProjectRole role = projectRoleService.getByCode(ApplicationConstants.MANAGER);
         ProjectMember manager = ProjectMember.builder()
                 .project(saved)
                 .user(creator)
@@ -116,7 +117,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @CacheEvict(value = "projects", key = "#projectId")
+    @CacheEvict(value = "projects", key = "#projectId", allEntries = true)
     @Transactional
     public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
         Project project = getProject(projectId);
@@ -138,7 +139,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @CacheEvict(value = "projects", key = "#projectId")
+    @CacheEvict(value = "projects", key = "#projectId", allEntries = true)
     @Transactional
     public void deleteProject(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)

@@ -38,14 +38,9 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(request.email())) {
             throw new BadRequestException("Email already exists: " + request.email());
         }
-        List<String> roles =request.roles();
-        Set<Role> userRoles = new HashSet<>();
-        for(String r: roles) {
-            Role role = roleService.getRoleByCode(r);
-            if(role == null) {
-                continue;
-            }
-            userRoles.add(role);
+        Set<Role> userRoles = roleService.getRolesByCodes(request.roles());
+        if (userRoles.size() != request.roles().size()) {
+            throw new BadRequestException("One or more roles provided are invalid.");
         }
         User user = User.builder()
                 .username(request.username())
@@ -119,7 +114,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByName(String name) {
-        return userRepository.findByUsername(name).orElseThrow(() ->new ResourceNotFoundException("User","name",name));
+        return userRepository.findByUsername(name).orElseThrow(() -> new ResourceNotFoundException("User", "name", name));
     }
 
     @Override

@@ -11,6 +11,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -20,5 +23,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role getRoleByCode(String code) {
         return roleRepository.findByCode(code);
+    }
+
+    @Override
+    public Set<Role> getRolesByCodes(List<String> codes) {
+        return roleRepository.findByCodeIn(codes);
     }
 }
