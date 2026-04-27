@@ -1,11 +1,16 @@
 package com.congpv.springboot_base_project.core.service.impl;
 
+import com.congpv.springboot_base_project.core.entity.TaskStatus;
+import com.congpv.springboot_base_project.core.service.ProjectService;
+import com.congpv.springboot_base_project.core.service.TaskStatusService;
+import com.congpv.springboot_base_project.core.service.UserService;
 import com.congpv.springboot_base_project.shared.dto.PageResponse;
 import com.congpv.springboot_base_project.shared.dto.TaskRequestDto;
 import com.congpv.springboot_base_project.shared.dto.TaskResponseDto;
 import com.congpv.springboot_base_project.core.entity.Project;
 import com.congpv.springboot_base_project.core.entity.Task;
 import com.congpv.springboot_base_project.core.entity.User;
+import com.congpv.springboot_base_project.shared.enums.TaskPriority;
 import com.congpv.springboot_base_project.shared.exception.ResourceNotFoundException;
 import com.congpv.springboot_base_project.infrastructure.repository.ProjectRepository;
 import com.congpv.springboot_base_project.infrastructure.repository.TaskRepository;
@@ -26,39 +31,37 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class TaskServiceImpl implements TaskService {
 
+    private final TaskStatusService taskStatusService;
+    private final ProjectService projectService;
+    private final UserService userService;
     private final TaskRepository taskRepository;
-    private final ProjectRepository projectRepository;
-    private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public TaskResponseDto createTask(Long projectId, TaskRequestDto request, String reporterUsername) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
-
-        User reporter = userRepository.findByUsername(reporterUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", reporterUsername));
+        Project project = projectService.findById(projectId);
+        User reporter = userService.getUserByName(reporterUsername);
 
         User assignee = null;
         if (request.assigneeId() != null) {
-            assignee = userRepository.findById(request.assigneeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("User", "id",
-                            request.assigneeId()));
+            assignee = userService.findById(request.assigneeId());
         }
+        TaskStatus status = taskStatusService.findById(request.statusId());
 
         Task task = Task.builder()
                 .title(request.title())
                 .description(request.description())
-                .status(request.status())
+                .status(status)
                 .project(project)
                 .reporter(reporter)
                 .assignee(assignee)
                 .dueDate(request.dueDate())
                 .startDate(request.startDate())
                 .estimateHours(request.estimateHours())
-                .priority(request.priority())
+                .priority(TaskPriority.valueOf(request.priority()))
                 .build();
 
         Task savedTask = taskRepository.save(task);
@@ -66,7 +69,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     @Cacheable(value = "tasks", key = "#projectId + '-' + #taskId")
     public TaskResponseDto getTaskById(Long taskId, Long projectId) {
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
@@ -75,10 +77,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     @Cacheable(value = "tasks", key = "#projectId + '-' + #pageNo + '-' + #pageSize")
     public PageResponse<TaskResponseDto> getTasksByProject(Long projectId, int pageNo, int pageSize) {
-        if (!projectRepository.existsById(projectId)) {
+        if (!projectService.existById(projectId)) {
             throw new ResourceNotFoundException("Project", "id", projectId);
         }
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -98,21 +99,21 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
+    @Transactional
     public TaskResponseDto updateTask(Long projectId, Long taskId, TaskRequestDto request) {
+        TaskStatus status = taskStatusService.findById(request.statusId());
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
 
         task.setTitle(request.title());
         task.setDescription(request.description());
-        task.setStatus(request.status());
+        task.setStatus(status);
         task.setStartDate(request.startDate());
         task.setDueDate(request.dueDate());
         task.setEstimateHours(request.estimateHours());
 
         if (request.assigneeId() != null) {
-            User assignee = userRepository.findById(request.assigneeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("User", "id",
-                            request.assigneeId()));
+            User assignee = userService.findById(request.assigneeId());
             task.setAssignee(assignee);
         } else {
             task.setAssignee(null);
@@ -124,6 +125,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
+    @Transactional
     public void deleteTask(Long projectId, Long taskId) {
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
@@ -141,7 +143,7 @@ public class TaskServiceImpl implements TaskService {
                 .id(task.getId())
                 .title(task.getTitle())
                 .description(task.getDescription())
-                .status(task.getStatus())
+                .status(task.getStatus().getCode())
                 .projectId(task.getProject().getId())
                 .reporterUsername(task.getReporter().getUsername())
                 .assigneeUsername(task.getAssignee() != null ? task.getAssignee().getUsername() : null)

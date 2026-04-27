@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ProjectMemberServiceImpl implements ProjectMemberService {
 
     private final ProjectMemberRepository memberRepo;
@@ -33,6 +33,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     private final ProjectRoleRepository projectRoleRepository;
 
     @Override
+    @Transactional
     public void addMember(Long projectId, ProjectMemberRequestDto dto) {
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));

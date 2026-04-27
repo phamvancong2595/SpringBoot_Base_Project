@@ -13,12 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
 
     @Override
-    @Transactional(readOnly = true)
     public Role getRoleByCode(String code) {
         return roleRepository.findByCode(code);
     }

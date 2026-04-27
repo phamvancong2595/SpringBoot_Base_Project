@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
@@ -42,6 +42,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRoleRepository projectRoleRepository;
 
     @Override
+    @Transactional
     public ProjectResponseDto createProject(ProjectRequestDto dto) {
         // 1. Tạo Project
         Project project = Project.builder()
@@ -116,6 +117,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @CacheEvict(value = "projects", key = "#projectId")
+    @Transactional
     public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
         Project project = getProject(projectId);
         if (Strings.isNotBlank(request.name())) {
@@ -137,6 +139,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @CacheEvict(value = "projects", key = "#projectId")
+    @Transactional
     public void deleteProject(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
@@ -145,6 +148,16 @@ public class ProjectServiceImpl implements ProjectService {
             projectRepository.save(project);
         }
 
+    }
+
+    @Override
+    public Project findById(Long id) {
+        return projectRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Project", "Id", id));
+    }
+
+    @Override
+    public boolean existById(Long id) {
+        return projectRepository.existsById(id);
     }
 
 }
