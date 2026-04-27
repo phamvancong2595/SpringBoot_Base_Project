@@ -17,4 +17,6 @@ public interface TaskService {
     void deleteTask(Long projectId, Long taskId);
 
     Task findTaskById(Long id);
+
+    void assignTaskOfMemberToManager(Long managerId, Long memberId, Long projectId);
 }

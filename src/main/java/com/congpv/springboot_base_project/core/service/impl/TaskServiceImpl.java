@@ -138,6 +138,11 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
     }
 
+    @Override
+    public void assignTaskOfMemberToManager(Long managerId, Long memberId, Long projectId) {
+        taskRepository.updateTaskToManager(managerId, memberId, projectId);
+    }
+
     private TaskResponseDto mapToDto(Task task) {
         return TaskResponseDto.builder()
                 .id(task.getId())

@@ -12,4 +12,6 @@ public interface ProjectMemberService {
     public List<ProjectMemberResponseDto> getAllProjectMembers(Long projectId);
 
     void save(ProjectMember projectMember);
+
+    void deleteMemberOfProject(Long projectId, Long memberId);
 }

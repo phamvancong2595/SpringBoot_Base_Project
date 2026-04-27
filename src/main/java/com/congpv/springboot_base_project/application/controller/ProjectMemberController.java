@@ -37,4 +37,12 @@ public class ProjectMemberController {
         List<ProjectMemberResponseDto> projectMembers = memberService.getAllProjectMembers(projectId);
         return ResponseEntity.ok(ApiResponse.success(projectMembers));
     }
+
+    @PreAuthorize("@projectSecurity.isProjectManager(#projectId, authentication)")
+    @DeleteMapping("/{memberId}")
+    public ResponseEntity<ApiResponse<Void>> deleteProjectMember(
+            @PathVariable Long projectId, @PathVariable Long memberId) {
+        memberService.deleteMemberOfProject(projectId, memberId);
+        return ResponseEntity.ok(ApiResponse.success("Member delete successful", null));
+    }
 }

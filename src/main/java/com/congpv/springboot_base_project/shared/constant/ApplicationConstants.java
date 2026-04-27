@@ -5,5 +5,5 @@ public class ApplicationConstants {
     public static final String MANAGER = "PROJECT_MANAGER";
     public static final String ADMIN = "ROLE_ADMIN";
     public static final String USER = "ROLE_USER";
-
+    public static final Long PROJECT_MANAGER_ROLE_ID = 1L;
 }
