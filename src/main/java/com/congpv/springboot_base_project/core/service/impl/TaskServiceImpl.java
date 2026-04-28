@@ -16,6 +16,7 @@ import com.congpv.springboot_base_project.infrastructure.repository.ProjectRepos
 import com.congpv.springboot_base_project.infrastructure.repository.TaskRepository;
 import com.congpv.springboot_base_project.infrastructure.repository.UserRepository;
 import com.congpv.springboot_base_project.core.service.TaskService;
+import com.congpv.springboot_base_project.shared.mapper.TaskMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.cache.annotation.CacheEvict;
@@ -38,6 +39,7 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectService projectService;
     private final UserService userService;
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
     @Override
     @Transactional
@@ -65,7 +67,7 @@ public class TaskServiceImpl implements TaskService {
                 .build();
 
         Task savedTask = taskRepository.save(task);
-        return mapToDto(savedTask);
+        return taskMapper.mapToDto(savedTask);
     }
 
     @Override
@@ -73,7 +75,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponseDto getTaskById(Long taskId, Long projectId) {
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
-        return mapToDto(task);
+        return taskMapper.mapToDto(task);
     }
 
     @Override
@@ -85,7 +87,7 @@ public class TaskServiceImpl implements TaskService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Task> taskPage = taskRepository.findByProjectIdAndIsDeletedFalse(projectId, pageable);
         List<TaskResponseDto> content = taskPage.getContent().stream()
-                .map(this::mapToDto)
+                .map(taskMapper::mapToDto)
                 .collect(Collectors.toList());
         return PageResponse.<TaskResponseDto>builder()
                 .content(content)
@@ -120,7 +122,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         Task updatedTask = taskRepository.save(task);
-        return mapToDto(updatedTask);
+        return taskMapper.mapToDto(updatedTask);
     }
 
     @Override
@@ -143,20 +145,4 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.updateTaskToManager(managerId, memberId, projectId);
     }
 
-    private TaskResponseDto mapToDto(Task task) {
-        return TaskResponseDto.builder()
-                .id(task.getId())
-                .title(task.getTitle())
-                .description(task.getDescription())
-                .status(task.getStatus().getCode())
-                .projectId(task.getProject().getId())
-                .reporterUsername(task.getReporter().getUsername())
-                .assigneeUsername(task.getAssignee() != null ? task.getAssignee().getUsername() : null)
-                .startDate(task.getStartDate())
-                .dueDate(task.getDueDate())
-                .estimateHours(task.getEstimateHours())
-                .createdAt(task.getCreatedAt())
-                .updatedAt(task.getUpdatedAt())
-                .build();
-    }
 }

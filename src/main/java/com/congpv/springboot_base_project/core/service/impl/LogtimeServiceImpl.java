@@ -8,6 +8,7 @@ import com.congpv.springboot_base_project.core.service.TaskService;
 import com.congpv.springboot_base_project.core.service.UserService;
 import com.congpv.springboot_base_project.infrastructure.repository.LogtimeRepository;
 import com.congpv.springboot_base_project.shared.dto.*;
+import com.congpv.springboot_base_project.shared.mapper.LogtimeMapper;
 import com.congpv.springboot_base_project.shared.util.ApplicationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class LogtimeServiceImpl implements LogtimeService {
     private final LogtimeRepository logtimeRepository;
     private final UserService userService;
     private final TaskService taskService;
+    private final LogtimeMapper logtimeMapper;
 
     @Override
     @Transactional
@@ -36,19 +38,7 @@ public class LogtimeServiceImpl implements LogtimeService {
                 .description(request.description())
                 .build();
         Logtime savedLogtime = logtimeRepository.save(logtime);
-        return mapToDto(savedLogtime);
+        return logtimeMapper.mapToDto(savedLogtime);
     }
 
-    private LogTimeResponseDto mapToDto(Logtime logtime) {
-        return LogTimeResponseDto
-                .builder()
-                .id(logtime.getId())
-                .createdBy(ApplicationUtil.getLoggedInUser())
-                .taskId(logtime.getTask().getId())
-                .userId(logtime.getUser().getId())
-                .logDate(logtime.getLogDate())
-                .hoursSpent(logtime.getHoursSpent())
-                .description(logtime.getDescription())
-                .build();
-    }
 }

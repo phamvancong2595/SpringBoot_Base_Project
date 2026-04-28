@@ -9,6 +9,7 @@ import com.congpv.springboot_base_project.shared.exception.BadRequestException;
 import com.congpv.springboot_base_project.shared.exception.ResourceNotFoundException;
 import com.congpv.springboot_base_project.infrastructure.repository.UserRepository;
 import com.congpv.springboot_base_project.core.service.UserService;
+import com.congpv.springboot_base_project.shared.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -51,27 +53,27 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User savedUser = userRepository.save(user);
-        return mapToDto(savedUser);
+        return userMapper.mapToDto(savedUser);
     }
 
     @Override
     public UserResponseDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
-        return mapToDto(user);
+        return userMapper.mapToDto(user);
     }
 
     @Override
     public UserResponseDto getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-        return mapToDto(user);
+        return userMapper.mapToDto(user);
     }
 
     @Override
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(this::mapToDto)
+                .map(userMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -101,7 +103,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setFullName(request.fullName());
         User updatedUser = userRepository.save(user);
-        return mapToDto(updatedUser);
+        return userMapper.mapToDto(updatedUser);
     }
 
     @Override
@@ -122,16 +124,4 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
-    private UserResponseDto mapToDto(User user) {
-        return UserResponseDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .active(user.getActive())
-                .roles(user.getRoles().stream().map(Role::getCode).toList())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
-    }
 }
