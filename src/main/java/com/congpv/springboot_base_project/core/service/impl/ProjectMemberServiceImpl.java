@@ -69,13 +69,12 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteMemberOfProject(Long projectId, Long memberId) {
-
         ProjectMember manager = projectMemberRepository.findByProjectId(projectId)
                 .stream()
                 .filter(p -> Objects.equals(p.getRole().getId(), ApplicationConstants.PROJECT_MANAGER_ROLE_ID))
                 .findFirst().orElseThrow(() -> new ResourceNotFoundException("ProjectMember", "projectId", projectId));
         ProjectMember member = projectMemberRepository.findById(memberId)
-                .orElseThrow(() -> new ResourceNotFoundException("ProjectMember","memberId",memberId));
+                .orElseThrow(() -> new ResourceNotFoundException("ProjectMember", "memberId", memberId));
         taskService.assignTaskOfMemberToManager(manager.getId(), member.getId(), projectId);
         projectMemberRepository.deleteMemberById(member.getId());
     }
