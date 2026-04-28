@@ -76,6 +76,9 @@ public class RedisCacheConfig {
         customConfigs.put("user_detail_username", defaultConfig.entryTtl(Duration.ofDays(3)));
         customConfigs.put("users", defaultConfig.entryTtl(Duration.ofDays(3)));
 
+        customConfigs.put("task_details", defaultConfig.entryTtl(Duration.ofMinutes(30)));
+        customConfigs.put("task_pagination", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(customConfigs)

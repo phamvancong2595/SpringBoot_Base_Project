@@ -16,6 +16,7 @@ import com.congpv.springboot_base_project.core.repository.TaskRepository;
 import com.congpv.springboot_base_project.core.service.TaskService;
 import com.congpv.springboot_base_project.shared.mapper.TaskMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Pageable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -41,6 +42,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "task_pagination", allEntries = true)
+    })
     public TaskResponseDto createTask(Long projectId, TaskRequestDto request, String reporterUsername) {
         Project project = projectService.findById(projectId);
         User reporter = userService.getUserByName(reporterUsername);
@@ -69,7 +73,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @Cacheable(value = "tasks", key = "#projectId + '-' + #taskId")
+    @Cacheable(value = "task_details", key = "#taskId")
     public TaskResponseDto getTaskById(Long taskId, Long projectId) {
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", taskId));
@@ -77,7 +81,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @Cacheable(value = "tasks", key = "#projectId + '-' + #pageNo + '-' + #pageSize")
+    @Cacheable(value = "task_pagination", key = "#pageNo + '-' + #pageSize")
     public PageResponse<TaskResponseDto> getTasksByProject(Long projectId, int pageNo, int pageSize) {
         if (!projectService.existById(projectId)) {
             throw new ResourceNotFoundException("Project", "id", projectId);
@@ -89,16 +93,19 @@ public class TaskServiceImpl implements TaskService {
                 .collect(Collectors.toList());
         return PageResponse.<TaskResponseDto>builder()
                 .content(content)
-                .page(taskPage.getNumber())
-                .size(taskPage.getSize())
+                .pageNo(taskPage.getNumber())
+                .pageSize(taskPage.getSize())
                 .totalElements(taskPage.getTotalElements())
                 .totalPages(taskPage.getTotalPages())
-                .isLast(taskPage.isLast())
+                .last(taskPage.isLast())
                 .build();
     }
 
     @Override
-    @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
+    @Caching(evict = {
+            @CacheEvict(value = "task_details", key = "#taskId"),
+            @CacheEvict(value = "task_pagination", allEntries = true)
+    })
     @Transactional
     public TaskResponseDto updateTask(Long projectId, Long taskId, TaskRequestDto request) {
         TaskStatus status = taskStatusService.findById(request.statusId());
@@ -124,7 +131,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @CacheEvict(value = "tasks", key = "#projectId + '-' + #taskId")
+    @Caching(evict = {
+            @CacheEvict(value = "task_details", key = "#taskId"),
+            @CacheEvict(value = "task_pagination", allEntries = true)
+    })
     @Transactional
     public void deleteTask(Long projectId, Long taskId) {
         Task task = taskRepository.findByIdAndProjectIdAndIsDeletedFalse(taskId, projectId)

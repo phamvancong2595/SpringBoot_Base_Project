@@ -5,6 +5,7 @@ import com.congpv.springboot_base_project.core.service.ProjectRoleService;
 import com.congpv.springboot_base_project.core.service.UserService;
 import com.congpv.springboot_base_project.core.repository.ProjectMemberRepository;
 import com.congpv.springboot_base_project.shared.constant.ApplicationConstants;
+import com.congpv.springboot_base_project.shared.dto.common.PageResponse;
 import com.congpv.springboot_base_project.shared.dto.project.ProjectPageResponse;
 import com.congpv.springboot_base_project.shared.dto.project.ProjectRequestDto;
 import com.congpv.springboot_base_project.shared.dto.project.ProjectResponseDto;
@@ -45,7 +46,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = "project_details", key = "#projectId"),
             @CacheEvict(value = "projects_pagination", allEntries = true)
     })
     public ProjectResponseDto createProject(ProjectRequestDto dto) {
@@ -111,10 +111,10 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
         return new ProjectPageResponse(
                 content,
-                projectPage.getTotalPages(),
-                projectPage.getNumberOfElements(),
                 projectPage.getNumber(),
                 projectPage.getSize(),
+                projectPage.getTotalElements(),
+                projectPage.getTotalPages(),
                 projectPage.isLast()
         );
     }
