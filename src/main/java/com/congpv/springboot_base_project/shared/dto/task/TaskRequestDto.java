@@ -1,9 +1,7 @@
-package com.congpv.springboot_base_project.shared.dto;
+package com.congpv.springboot_base_project.shared.dto.task;
 
 import java.time.LocalDateTime;
 
-import com.congpv.springboot_base_project.core.entity.TaskStatus;
-import com.congpv.springboot_base_project.shared.enums.TaskPriority;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

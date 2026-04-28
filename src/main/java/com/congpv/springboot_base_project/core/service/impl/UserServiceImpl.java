@@ -2,12 +2,12 @@ package com.congpv.springboot_base_project.core.service.impl;
 
 import com.congpv.springboot_base_project.core.entity.Role;
 import com.congpv.springboot_base_project.core.service.RoleService;
-import com.congpv.springboot_base_project.shared.dto.UserRequestDto;
-import com.congpv.springboot_base_project.shared.dto.UserResponseDto;
+import com.congpv.springboot_base_project.shared.dto.user.UserRequestDto;
+import com.congpv.springboot_base_project.shared.dto.user.UserResponseDto;
 import com.congpv.springboot_base_project.core.entity.User;
 import com.congpv.springboot_base_project.shared.exception.BadRequestException;
 import com.congpv.springboot_base_project.shared.exception.ResourceNotFoundException;
-import com.congpv.springboot_base_project.infrastructure.repository.UserRepository;
+import com.congpv.springboot_base_project.core.repository.UserRepository;
 import com.congpv.springboot_base_project.core.service.UserService;
 import com.congpv.springboot_base_project.shared.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

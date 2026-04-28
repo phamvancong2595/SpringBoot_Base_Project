@@ -1,11 +1,12 @@
 package com.congpv.springboot_base_project.application.controller;
 
-import com.congpv.springboot_base_project.shared.dto.*;
 import com.congpv.springboot_base_project.core.service.ProjectService;
+import com.congpv.springboot_base_project.shared.dto.common.ApiResponse;
+import com.congpv.springboot_base_project.shared.dto.project.ProjectPageResponse;
+import com.congpv.springboot_base_project.shared.dto.project.ProjectRequestDto;
+import com.congpv.springboot_base_project.shared.dto.project.ProjectResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

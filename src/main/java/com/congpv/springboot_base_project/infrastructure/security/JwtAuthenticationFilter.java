@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.congpv.springboot_base_project.infrastructure.repository.TokenRepository;
+import com.congpv.springboot_base_project.core.repository.TokenRepository;
 
 import java.io.IOException;
 

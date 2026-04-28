@@ -1,6 +1,6 @@
 package com.congpv.springboot_base_project.shared.exception;
 
-import com.congpv.springboot_base_project.shared.dto.ApiResponse;
+import com.congpv.springboot_base_project.shared.dto.common.ApiResponse;
 
 import io.sentry.Sentry;
 

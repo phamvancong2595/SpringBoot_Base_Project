@@ -1,8 +1,8 @@
 package com.congpv.springboot_base_project.core.service;
 
 import com.congpv.springboot_base_project.core.entity.User;
-import com.congpv.springboot_base_project.shared.dto.UserRequestDto;
-import com.congpv.springboot_base_project.shared.dto.UserResponseDto;
+import com.congpv.springboot_base_project.shared.dto.user.UserRequestDto;
+import com.congpv.springboot_base_project.shared.dto.user.UserResponseDto;
 
 import java.util.List;
 

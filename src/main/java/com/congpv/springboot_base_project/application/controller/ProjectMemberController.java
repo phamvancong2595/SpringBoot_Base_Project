@@ -1,8 +1,8 @@
 package com.congpv.springboot_base_project.application.controller;
 
-import com.congpv.springboot_base_project.shared.dto.ApiResponse;
-import com.congpv.springboot_base_project.shared.dto.ProjectMemberRequestDto;
-import com.congpv.springboot_base_project.shared.dto.ProjectMemberResponseDto;
+import com.congpv.springboot_base_project.shared.dto.common.ApiResponse;
+import com.congpv.springboot_base_project.shared.dto.project_member.ProjectMemberRequestDto;
+import com.congpv.springboot_base_project.shared.dto.project_member.ProjectMemberResponseDto;
 import com.congpv.springboot_base_project.core.service.ProjectMemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

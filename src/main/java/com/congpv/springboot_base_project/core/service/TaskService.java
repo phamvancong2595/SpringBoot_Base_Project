@@ -1,9 +1,9 @@
 package com.congpv.springboot_base_project.core.service;
 
 import com.congpv.springboot_base_project.core.entity.Task;
-import com.congpv.springboot_base_project.shared.dto.PageResponse;
-import com.congpv.springboot_base_project.shared.dto.TaskRequestDto;
-import com.congpv.springboot_base_project.shared.dto.TaskResponseDto;
+import com.congpv.springboot_base_project.shared.dto.common.PageResponse;
+import com.congpv.springboot_base_project.shared.dto.task.TaskRequestDto;
+import com.congpv.springboot_base_project.shared.dto.task.TaskResponseDto;
 
 public interface TaskService {
     TaskResponseDto createTask(Long projectId, TaskRequestDto request, String reporterUsername);

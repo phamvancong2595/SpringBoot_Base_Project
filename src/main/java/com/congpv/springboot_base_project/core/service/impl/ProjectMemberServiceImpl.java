@@ -3,13 +3,13 @@ package com.congpv.springboot_base_project.core.service.impl;
 import com.congpv.springboot_base_project.core.entity.ProjectRole;
 import com.congpv.springboot_base_project.core.service.*;
 import com.congpv.springboot_base_project.shared.constant.ApplicationConstants;
-import com.congpv.springboot_base_project.shared.dto.ProjectMemberRequestDto;
-import com.congpv.springboot_base_project.shared.dto.ProjectMemberResponseDto;
+import com.congpv.springboot_base_project.shared.dto.project_member.ProjectMemberRequestDto;
+import com.congpv.springboot_base_project.shared.dto.project_member.ProjectMemberResponseDto;
 import com.congpv.springboot_base_project.core.entity.Project;
 import com.congpv.springboot_base_project.core.entity.ProjectMember;
 import com.congpv.springboot_base_project.core.entity.User;
 import com.congpv.springboot_base_project.shared.exception.BadRequestException;
-import com.congpv.springboot_base_project.infrastructure.repository.ProjectMemberRepository;
+import com.congpv.springboot_base_project.core.repository.ProjectMemberRepository;
 
 import com.congpv.springboot_base_project.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;

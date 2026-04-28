@@ -1,20 +1,18 @@
 package com.congpv.springboot_base_project.core.service.impl;
 
 import com.congpv.springboot_base_project.core.entity.ProjectRole;
-import com.congpv.springboot_base_project.core.service.ProjectMemberService;
 import com.congpv.springboot_base_project.core.service.ProjectRoleService;
 import com.congpv.springboot_base_project.core.service.UserService;
-import com.congpv.springboot_base_project.infrastructure.repository.ProjectMemberRepository;
+import com.congpv.springboot_base_project.core.repository.ProjectMemberRepository;
 import com.congpv.springboot_base_project.shared.constant.ApplicationConstants;
-import com.congpv.springboot_base_project.shared.dto.PageResponse;
-import com.congpv.springboot_base_project.shared.dto.ProjectPageResponse;
-import com.congpv.springboot_base_project.shared.dto.ProjectRequestDto;
-import com.congpv.springboot_base_project.shared.dto.ProjectResponseDto;
+import com.congpv.springboot_base_project.shared.dto.project.ProjectPageResponse;
+import com.congpv.springboot_base_project.shared.dto.project.ProjectRequestDto;
+import com.congpv.springboot_base_project.shared.dto.project.ProjectResponseDto;
 import com.congpv.springboot_base_project.core.entity.Project;
 import com.congpv.springboot_base_project.core.entity.ProjectMember;
 import com.congpv.springboot_base_project.core.entity.User;
 import com.congpv.springboot_base_project.shared.exception.ResourceNotFoundException;
-import com.congpv.springboot_base_project.infrastructure.repository.ProjectRepository;
+import com.congpv.springboot_base_project.core.repository.ProjectRepository;
 import com.congpv.springboot_base_project.core.service.ProjectService;
 
 import lombok.RequiredArgsConstructor;

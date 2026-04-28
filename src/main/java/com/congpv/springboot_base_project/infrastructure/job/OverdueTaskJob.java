@@ -1,11 +1,10 @@
 package com.congpv.springboot_base_project.infrastructure.job;
 
 import com.congpv.springboot_base_project.core.entity.Task;
-import com.congpv.springboot_base_project.infrastructure.repository.TaskRepository;
+import com.congpv.springboot_base_project.core.repository.TaskRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,8 +1,8 @@
 package com.congpv.springboot_base_project.application.controller;
 
 import com.congpv.springboot_base_project.core.service.LogtimeService;
-import com.congpv.springboot_base_project.shared.dto.LogTimeRequestDto;
-import com.congpv.springboot_base_project.shared.dto.LogTimeResponseDto;
+import com.congpv.springboot_base_project.shared.dto.logtime.LogTimeRequestDto;
+import com.congpv.springboot_base_project.shared.dto.logtime.LogTimeResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

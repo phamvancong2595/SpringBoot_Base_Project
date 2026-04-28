@@ -2,7 +2,7 @@ package com.congpv.springboot_base_project.infrastructure.security;
 
 import com.congpv.springboot_base_project.core.entity.Role;
 import com.congpv.springboot_base_project.core.entity.User;
-import com.congpv.springboot_base_project.infrastructure.repository.UserRepository;
+import com.congpv.springboot_base_project.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;

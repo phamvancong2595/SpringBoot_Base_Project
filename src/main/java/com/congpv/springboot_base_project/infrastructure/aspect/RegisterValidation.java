@@ -1,8 +1,8 @@
 package com.congpv.springboot_base_project.infrastructure.aspect;
 
 import com.congpv.springboot_base_project.core.entity.User;
-import com.congpv.springboot_base_project.infrastructure.repository.UserRepository;
-import com.congpv.springboot_base_project.shared.dto.UserRequestDto;
+import com.congpv.springboot_base_project.core.repository.UserRepository;
+import com.congpv.springboot_base_project.shared.dto.user.UserRequestDto;
 import com.congpv.springboot_base_project.shared.exception.RegistrationValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

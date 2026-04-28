@@ -1,4 +1,4 @@
-package com.congpv.springboot_base_project.shared.dto;
+package com.congpv.springboot_base_project.shared.dto.common;
 
 import lombok.Builder;
 

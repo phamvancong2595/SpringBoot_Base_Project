@@ -1,8 +1,7 @@
 package com.congpv.springboot_base_project.infrastructure.security;
 
 import com.congpv.springboot_base_project.core.entity.ProjectMember;
-import com.congpv.springboot_base_project.core.entity.ProjectRole;
-import com.congpv.springboot_base_project.infrastructure.repository.ProjectMemberRepository;
+import com.congpv.springboot_base_project.core.repository.ProjectMemberRepository;
 import com.congpv.springboot_base_project.shared.constant.ApplicationConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

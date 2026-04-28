@@ -1,23 +1,19 @@
 package com.congpv.springboot_base_project.application.controller;
 
-import com.congpv.springboot_base_project.shared.dto.ApiResponse;
-import com.congpv.springboot_base_project.shared.dto.UserRequestDto;
-import com.congpv.springboot_base_project.shared.dto.UserResponseDto;
+import com.congpv.springboot_base_project.shared.dto.common.ApiResponse;
+import com.congpv.springboot_base_project.shared.dto.user.UserRequestDto;
+import com.congpv.springboot_base_project.shared.dto.user.UserResponseDto;
 import com.congpv.springboot_base_project.core.service.UserService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
-import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")

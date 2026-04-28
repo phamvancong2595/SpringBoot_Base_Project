@@ -1,7 +1,7 @@
 package com.congpv.springboot_base_project.shared.mapper;
 
 import com.congpv.springboot_base_project.core.entity.Logtime;
-import com.congpv.springboot_base_project.shared.dto.LogTimeResponseDto;
+import com.congpv.springboot_base_project.shared.dto.logtime.LogTimeResponseDto;
 import com.congpv.springboot_base_project.shared.util.ApplicationUtil;
 import org.springframework.stereotype.Component;
 

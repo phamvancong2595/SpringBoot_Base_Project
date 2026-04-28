@@ -1,7 +1,7 @@
 package com.congpv.springboot_base_project.shared.mapper;
 
 import com.congpv.springboot_base_project.core.entity.Task;
-import com.congpv.springboot_base_project.shared.dto.TaskResponseDto;
+import com.congpv.springboot_base_project.shared.dto.task.TaskResponseDto;
 import org.springframework.stereotype.Component;
 
 @Component

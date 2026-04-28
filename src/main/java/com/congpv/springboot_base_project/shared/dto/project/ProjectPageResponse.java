@@ -1,6 +1,5 @@
-package com.congpv.springboot_base_project.shared.dto;
+package com.congpv.springboot_base_project.shared.dto.project;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

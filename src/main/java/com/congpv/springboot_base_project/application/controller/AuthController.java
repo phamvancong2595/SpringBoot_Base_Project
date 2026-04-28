@@ -1,13 +1,13 @@
 package com.congpv.springboot_base_project.application.controller;
 
-import com.congpv.springboot_base_project.shared.dto.ApiResponse;
-import com.congpv.springboot_base_project.shared.dto.JwtAuthResponse;
-import com.congpv.springboot_base_project.shared.dto.LoginRequestDto;
-import com.congpv.springboot_base_project.shared.dto.RefreshTokenRequest;
+import com.congpv.springboot_base_project.shared.dto.common.ApiResponse;
+import com.congpv.springboot_base_project.shared.dto.login.JwtAuthResponse;
+import com.congpv.springboot_base_project.shared.dto.login.LoginRequestDto;
+import com.congpv.springboot_base_project.shared.dto.login.RefreshTokenRequest;
 import com.congpv.springboot_base_project.core.entity.Token;
 import com.congpv.springboot_base_project.core.entity.User;
-import com.congpv.springboot_base_project.infrastructure.repository.TokenRepository;
-import com.congpv.springboot_base_project.infrastructure.repository.UserRepository;
+import com.congpv.springboot_base_project.core.repository.TokenRepository;
+import com.congpv.springboot_base_project.core.repository.UserRepository;
 import com.congpv.springboot_base_project.infrastructure.security.JwtTokenProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
