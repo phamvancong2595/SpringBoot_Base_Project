@@ -17,10 +17,10 @@ import java.util.Optional;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    @EntityGraph(attributePaths = { "tags" })
+    @EntityGraph(attributePaths = { "tags", "assignee", "reporter", "status"})
     Page<Task> findByProjectIdAndIsDeletedFalse(Long projectId, Pageable pageable);
 
-    @EntityGraph(attributePaths = { "tags" })
+    @EntityGraph(attributePaths = { "tags", "assignee", "reporter", "status"})
     Optional<Task> findByIdAndProjectIdAndIsDeletedFalse(Long id, Long projectId);
 
     @Query("SELECT t FROM Task t WHERE t.status.code NOT IN ('DONE') AND t.dueDate < :now")
