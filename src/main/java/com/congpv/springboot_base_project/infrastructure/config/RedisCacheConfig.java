@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,10 +31,14 @@ public class RedisCacheConfig {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
-        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator
+                .builder()
                 .allowIfBaseType(Object.class)
+                .allowIfSubType("src.main.java.com.congpv.springboot_base_project.shared.dto")
+                .allowIfSubType("java.util")
+                .allowIfSubType("java.lang")
                 .build();
-        objectMapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        objectMapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS, JsonTypeInfo.As.WRAPPER_ARRAY);
 
         RedisSerializer<Object> customJsonSerializer = new RedisSerializer<>() {
             @Override
@@ -66,6 +71,10 @@ public class RedisCacheConfig {
         Map<String, RedisCacheConfiguration> customConfigs = new HashMap<>();
         customConfigs.put("project_details", defaultConfig.entryTtl(Duration.ofMinutes(10)));
         customConfigs.put("projects_pagination", defaultConfig.entryTtl(Duration.ofMinutes(5)));
+
+        customConfigs.put("user_detail_id", defaultConfig.entryTtl(Duration.ofDays(3)));
+        customConfigs.put("user_detail_username", defaultConfig.entryTtl(Duration.ofDays(3)));
+        customConfigs.put("users", defaultConfig.entryTtl(Duration.ofDays(3)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

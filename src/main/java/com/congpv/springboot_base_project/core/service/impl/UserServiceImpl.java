@@ -11,6 +11,9 @@ import com.congpv.springboot_base_project.infrastructure.repository.UserReposito
 import com.congpv.springboot_base_project.core.service.UserService;
 import com.congpv.springboot_base_project.shared.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +36,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public UserResponseDto createUser(UserRequestDto request) {
         if (userRepository.existsByUsername(request.username())) {
             throw new BadRequestException("Username already exists: " + request.username());
@@ -57,6 +61,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "user_detail_id", key = "#id")
     public UserResponseDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
@@ -64,6 +69,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "user_detail_username", key = "#username")
     public UserResponseDto getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
@@ -71,6 +77,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users")
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::mapToDto)
@@ -79,6 +86,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "user_detail_id", key = "#id"),
+            @CacheEvict(value = "users", allEntries = true),
+            @CacheEvict(value = "user_detail_username", key = "#request.username()")
+    })
     public UserResponseDto updateUser(Long id, UserRequestDto request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
@@ -98,16 +110,20 @@ public class UserServiceImpl implements UserService {
                     }
                 });
 
-        user.setUsername(request.username());
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setFullName(request.fullName());
+        user.setUsername(request.username() != null ? request.username() : user.getUsername());
+        user.setEmail(request.email() != null ? request.email() : user.getEmail());
+        user.setPassword(request.password() != null ? passwordEncoder.encode(request.password()) : user.getPassword());
+        user.setFullName(request.fullName() != null ? request.fullName() : user.getFullName());
         User updatedUser = userRepository.save(user);
         return userMapper.mapToDto(updatedUser);
     }
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "user_detail_id", key = "#id"),
+            @CacheEvict(value = "users", allEntries = true),
+    })
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
