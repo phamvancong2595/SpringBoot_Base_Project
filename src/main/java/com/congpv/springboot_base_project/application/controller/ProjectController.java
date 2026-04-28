@@ -1,14 +1,6 @@
 package com.congpv.springboot_base_project.application.controller;
 
-import com.congpv.springboot_base_project.shared.dto.ApiResponse;
-import com.congpv.springboot_base_project.shared.dto.PageResponse;
-import com.congpv.springboot_base_project.shared.dto.ProjectMemberRequestDto;
-import com.congpv.springboot_base_project.shared.dto.ProjectMemberResponseDto;
-import com.congpv.springboot_base_project.shared.dto.ProjectRequestDto;
-import com.congpv.springboot_base_project.shared.dto.ProjectResponseDto;
-import com.congpv.springboot_base_project.shared.dto.TaskRequestDto;
-import com.congpv.springboot_base_project.shared.dto.TaskResponseDto;
-import com.congpv.springboot_base_project.shared.dto.UserResponseDto;
+import com.congpv.springboot_base_project.shared.dto.*;
 import com.congpv.springboot_base_project.core.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,10 +38,10 @@ public class ProjectController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<ProjectResponseDto>>> getAllProjects(
+    public ResponseEntity<ApiResponse<ProjectPageResponse>> getAllProjects(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
-        PageResponse<ProjectResponseDto> projects = projectService.getAllProjects(page, size);
+        ProjectPageResponse projects = projectService.getAllProjects(page, size);
         return ResponseEntity.ok(ApiResponse.success("Lấy danh sách dự án thành công", projects));
     }
 

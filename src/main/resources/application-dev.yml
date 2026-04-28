@@ -19,7 +19,10 @@ spring:
       ddl-auto: none
       default_batch_fetch_size: ${DEFAULT_BATCH_FETCH_SIZE:50}
     show-sql: true
-
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 logging:
   level:
     org.hibernate.SQL: DEBUG

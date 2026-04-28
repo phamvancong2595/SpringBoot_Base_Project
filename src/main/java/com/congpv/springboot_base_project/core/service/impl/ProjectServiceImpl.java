@@ -7,6 +7,7 @@ import com.congpv.springboot_base_project.core.service.UserService;
 import com.congpv.springboot_base_project.infrastructure.repository.ProjectMemberRepository;
 import com.congpv.springboot_base_project.shared.constant.ApplicationConstants;
 import com.congpv.springboot_base_project.shared.dto.PageResponse;
+import com.congpv.springboot_base_project.shared.dto.ProjectPageResponse;
 import com.congpv.springboot_base_project.shared.dto.ProjectRequestDto;
 import com.congpv.springboot_base_project.shared.dto.ProjectResponseDto;
 import com.congpv.springboot_base_project.core.entity.Project;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +46,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "projects", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "project_details", key = "#projectId"),
+            @CacheEvict(value = "projects_pagination", allEntries = true)
+    })
     public ProjectResponseDto createProject(ProjectRequestDto dto) {
         // 1. Tạo Project
         Project project = Project.builder()
@@ -80,7 +85,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @Cacheable(value = "projects", key = "#projectId")
+    @Cacheable(value = "projects_details", key = "#projectId")
     public ProjectResponseDto getProjectById(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));
@@ -92,8 +97,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @Cacheable(value = "projects", key = "#pageNo + '-' + #pageSize")
-    public PageResponse<ProjectResponseDto> getAllProjects(int pageNo, int pageSize) {
+    @Cacheable(value = "projects_pagination", key = "#pageNo + '-' + #pageSize")
+    public ProjectPageResponse getAllProjects(int pageNo, int pageSize) {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
 
@@ -106,19 +111,22 @@ public class ProjectServiceImpl implements ProjectService {
                         .description(project.getDescription())
                         .build())
                 .collect(Collectors.toList());
-        return PageResponse.<ProjectResponseDto>builder()
-                .content(content)
-                .page(projectPage.getNumber())
-                .size(projectPage.getSize())
-                .totalElements(projectPage.getTotalElements())
-                .totalPages(projectPage.getTotalPages())
-                .isLast(projectPage.isLast())
-                .build();
+        return new ProjectPageResponse(
+                content,
+                projectPage.getTotalPages(),
+                projectPage.getNumberOfElements(),
+                projectPage.getNumber(),
+                projectPage.getSize(),
+                projectPage.isLast()
+        );
     }
 
     @Override
-    @CacheEvict(value = "projects", key = "#projectId", allEntries = true)
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "project_details", key = "#projectId"),
+            @CacheEvict(value = "projects_pagination", allEntries = true)
+    })
     public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
         Project project = getProject(projectId);
         if (Strings.isNotBlank(request.name())) {
@@ -139,8 +147,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @CacheEvict(value = "projects", key = "#projectId", allEntries = true)
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "project_details", key = "#projectId"),
+            @CacheEvict(value = "projects_pagination", allEntries = true)
+    })
     public void deleteProject(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", projectId));

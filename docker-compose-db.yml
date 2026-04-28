@@ -12,7 +12,15 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - jira-network
-
+  redis_jira:
+    image: redis:7.2-alpine
+    container_name: redis_jira
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - ./redis_data:/data
+    restart: always
 volumes:
   mysql_data:
 
