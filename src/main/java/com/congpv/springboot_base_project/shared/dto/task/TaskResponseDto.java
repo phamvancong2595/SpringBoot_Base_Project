@@ -11,7 +11,7 @@ public record TaskResponseDto(
         String description,
         String status,
         Long projectId,
-        String priorityId,
+        String priority,
         String reporterUsername,
         String assigneeUsername,
         LocalDateTime startDate,

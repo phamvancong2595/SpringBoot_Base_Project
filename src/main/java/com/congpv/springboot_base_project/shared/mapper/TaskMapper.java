@@ -20,6 +20,7 @@ public class TaskMapper {
                 .estimateHours(task.getEstimateHours())
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
+                .priority(task.getPriority().toString())
                 .build();
     }
 }
