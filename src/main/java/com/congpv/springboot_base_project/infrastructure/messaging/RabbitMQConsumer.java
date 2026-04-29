@@ -4,9 +4,11 @@ import com.congpv.springboot_base_project.core.service.EmailService;
 import com.congpv.springboot_base_project.infrastructure.config.RabbitMQConfig;
 import com.congpv.springboot_base_project.shared.dto.events.TaskEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RabbitMQConsumer {
@@ -14,6 +16,11 @@ public class RabbitMQConsumer {
 
     @RabbitListener(queues = "jira.email.queue")
     public void handleTaskCreated(TaskEvent event) {
-        emailService.sendNewTaskNotification(event.assigneeEmail(), event.taskTitle(), event.assigneeName());
+        try {
+            emailService.sendNewTaskNotification(event.assigneeEmail(), event.taskTitle(), event.assigneeName());
+        } catch (Exception e) {
+            log.error("Mail server down! Sending to DLQ...");
+            throw new org.springframework.amqp.AmqpRejectAndDontRequeueException(e);
+        }
     }
 }

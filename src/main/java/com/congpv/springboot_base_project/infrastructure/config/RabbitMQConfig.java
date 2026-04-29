@@ -18,6 +18,10 @@ public class RabbitMQConfig {
     public static final String QUEUE = "jira.email.queue";
     public static final String ROUTING_KEY = "jira.email.routingKey";
 
+    public static final String DLX_EXCHANGE = "jira.email.dlx";
+    public static final String DLQ_QUEUE = "jira.email.dlq";
+    public static final String DL_ROUTING_KEY = "jira.email.deadLetter";
+
     @Bean
     public TopicExchange exchange() {
         return new TopicExchange(EXCHANGE);
@@ -38,6 +42,28 @@ public class RabbitMQConfig {
         return new Jackson2JsonMessageConverter(objectMapper);
     }
 
+    @Bean
+    public Queue emailQueue() {
+        return QueueBuilder.durable(QUEUE)
+                .withArgument("x-dead-letter-exchange", DLX_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", "deadLetter")
+                .build();
+    }
+
+    @Bean
+    public Queue deadLetterQueue() {
+        return new Queue(DLQ_QUEUE);
+    }
+
+    @Bean
+    public TopicExchange deadLetterExchange() {
+        return new TopicExchange(DLX_EXCHANGE);
+    }
+
+    @Bean
+    public Binding dlqBinding() {
+        return BindingBuilder.bind(deadLetterQueue()).to(deadLetterExchange()).with(DL_ROUTING_KEY);
+    }
 
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
