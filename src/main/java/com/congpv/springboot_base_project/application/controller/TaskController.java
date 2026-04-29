@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 public class TaskController {
 
     private final TaskService taskService;
-    private final EmailService emailService;
 
     @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
     @PostMapping
@@ -30,7 +29,6 @@ public class TaskController {
             Authentication authentication) {
         String reporterUsername = authentication.getName();
         TaskResponseDto task = taskService.createTask(projectId, request, reporterUsername);
-        emailService.sendNewTaskNotification("congpv24@gmail.com", task.title(), reporterUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(task));
     }
 

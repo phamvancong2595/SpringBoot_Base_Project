@@ -1,10 +1,10 @@
 package com.congpv.springboot_base_project.core.service.impl;
 
 import com.congpv.springboot_base_project.core.entity.TaskStatus;
-import com.congpv.springboot_base_project.core.service.ProjectService;
-import com.congpv.springboot_base_project.core.service.TaskStatusService;
-import com.congpv.springboot_base_project.core.service.UserService;
+import com.congpv.springboot_base_project.core.service.*;
+import com.congpv.springboot_base_project.infrastructure.messaging.RabbitMQProducer;
 import com.congpv.springboot_base_project.shared.dto.common.PageResponse;
+import com.congpv.springboot_base_project.shared.dto.events.TaskEvent;
 import com.congpv.springboot_base_project.shared.dto.task.TaskRequestDto;
 import com.congpv.springboot_base_project.shared.dto.task.TaskResponseDto;
 import com.congpv.springboot_base_project.core.entity.Project;
@@ -13,7 +13,6 @@ import com.congpv.springboot_base_project.core.entity.User;
 import com.congpv.springboot_base_project.shared.enums.TaskPriority;
 import com.congpv.springboot_base_project.shared.exception.ResourceNotFoundException;
 import com.congpv.springboot_base_project.core.repository.TaskRepository;
-import com.congpv.springboot_base_project.core.service.TaskService;
 import com.congpv.springboot_base_project.shared.mapper.TaskMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Caching;
@@ -33,12 +32,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class TaskServiceImpl implements TaskService {
-
     private final TaskStatusService taskStatusService;
     private final ProjectService projectService;
     private final UserService userService;
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
+    private final RabbitMQProducer rabbitMQProducer;
 
     @Override
     @Transactional
@@ -69,6 +68,8 @@ public class TaskServiceImpl implements TaskService {
                 .build();
 
         Task savedTask = taskRepository.save(task);
+        rabbitMQProducer.publishTaskCreated(new TaskEvent(task.getAssignee().getUsername(),
+                task.getTitle(), "congpv24@gmail.com"));
         return taskMapper.mapToDto(savedTask);
     }
 
