@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 public class RabbitMQConsumer {
     private final EmailService emailService;
 
-    @RabbitListener(queues = "jira.email.queue")
+    @RabbitListener(queues = RabbitMQConfig.QUEUE)
     public void handleTaskCreated(TaskEvent event) {
         try {
             emailService.sendNewTaskNotification(event.assigneeEmail(), event.taskTitle(), event.assigneeName());
         } catch (Exception e) {
-            log.error("Mail server down! Sending to DLQ...");
+            log.error("Mail server down! Sending to DLQ...", e.getMessage(),e);
             throw new org.springframework.amqp.AmqpRejectAndDontRequeueException(e);
         }
     }
