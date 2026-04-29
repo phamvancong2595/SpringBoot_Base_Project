@@ -1,5 +1,6 @@
 package com.congpv.springboot_base_project.application.controller;
 
+import com.congpv.springboot_base_project.core.service.UserService;
 import com.congpv.springboot_base_project.shared.dto.common.ApiResponse;
 import com.congpv.springboot_base_project.shared.dto.login.JwtAuthResponse;
 import com.congpv.springboot_base_project.shared.dto.login.LoginRequestDto;
@@ -34,7 +35,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final TokenRepository tokenRepository;
 
     @PostMapping("/refresh")
@@ -46,8 +47,7 @@ public class AuthController {
 
         if (username != null) {
             // 2. Kiểm tra User tồn tại trong hệ thống (Không dùng AuthenticationManager để tránh lỗi so khớp Password)
-            User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy User"));
+            User user = userService.getUserByName(username);
             Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null);
 
             // 3. Kiểm tra xem Refresh Token này có hợp lệ không
@@ -90,8 +90,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = tokenProvider.generateAccessToken(authentication);
         String refreshToken = tokenProvider.generateRefreshToken(authentication);
-        User user = userRepository.findByUsername(loginRequest.username())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.getUserByName(loginRequest.username());
         revokeAllUserTokens(user);
         saveUserToken(user, accessToken, refreshToken);
 
