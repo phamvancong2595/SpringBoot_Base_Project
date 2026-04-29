@@ -1,147 +1,130 @@
-# Task Management System (Mini Jira) — Spring Boot Base Project
+# Spring Boot Base Project
 
-A production-ready Spring Boot base project built with **Clean Architecture**, providing a full-featured task/project management system. It includes two-tier RBAC, stateless JWT authentication with Refresh Token rotation, Flyway-managed schema migrations, and first-class observability via ELK Stack and Redis-based Distributed Caching.
+A robust and production-ready Spring Boot foundational project, pre-configured with industry-standard patterns and tools to accelerate backend development.
 
----
+## 🚀 Key Features
 
-## Tech Stack
+- **Java 21 & Spring Boot 4.0.5**: Leveraging the latest LTS Java features and Spring Boot performance.
+- **Database Management**: MySQL with **Flyway** for version-controlled database migrations.
+- **Security**: Stateless authentication using **Spring Security & JWT**.
+- **Caching & Locking**: **Redis** integration with **Redisson** for distributed locking and efficient caching.
+- **Asynchronous Messaging**: **RabbitMQ** for decoupling services and handling background tasks.
+- **Monitoring & Observability**:
+    - **ELK Stack** (Elasticsearch, Logstash, Kibana) for centralized logging.
+    - **Sentry** integration for real-time error tracking and performance monitoring.
+- **API Documentation**: Interactive API docs using **Swagger/OpenAPI 3**.
+- **Containerization**: Fully Dockerized environment with dedicated Compose files for DB and ELK.
+- **Scheduled Tasks**: Built-in support for background jobs using Spring Scheduling.
+- **AOP**: Aspect-Oriented Programming for request validation and audit logging.
 
-| Category | Technology | Version |
-|---|---|---|
-| Language | Java | 21 (LTS) |
-| Framework | Spring Boot | 4.0.5 |
-| ORM | Spring Data JPA + Hibernate | (Boot managed) |
-| Database | MySQL | 8.x |
-| Caching | **Redis (Distributed Cache)** | (Boot managed) |
-| Security | Spring Security, JJWT | 0.13.0 |
-| API Docs | SpringDoc OpenAPI (Swagger UI) | 3.0.2 |
-| DB Migration | Flyway (flyway-mysql) | (Boot managed) |
-| Monitoring | Sentry for Spring Boot 4 | 8.27.0 |
-| Logging | Logstash Logback Encoder | 7.4 |
-| Utilities | Lombok, Jackson (JSON), Dotenv | 1.18.32 / 4.0.0 |
+## 🛠 Tech Stack
 
----
+- **Backend**: Spring Boot, Spring Data JPA, Spring Security.
+- **Database**: MySQL 8+, Redis.
+- **Messaging**: RabbitMQ.
+- **Logging**: Logback, Logstash, ELK.
+- **Tools**: Lombok, MapStruct (for DTO mapping), Maven, Docker.
 
-## Key Features
+## 🏁 Getting Started
 
-### Authentication & Security
-- Registration / Login with **BCrypt** password encoding.
-- Stateless JWT: **Access Tokens** & **Refresh Tokens** with rotation logic.
-- `JwtAuthenticationFilter` for secure, per-request authorization.
-- Custom `UsernamePwdAuthenticationProvider` for fine-grained auth control.
-- Structured Error Handling: `JwtAuthenticationEntryPoint` for 401 Unauthorized responses.
+### Prerequisites
 
-### Two-Tier RBAC
-- **Global Roles:** `ROLE_ADMIN`, `ROLE_USER`.
-- **Project Roles:** `PROJECT_MANAGER`, `DEVELOPER`, `TESTER`, `VIEWER` (stored in `project_roles` table).
-- Method-level security via `@PreAuthorize` and `ProjectSecurityService`.
+- [JDK 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
+- [Docker & Docker Compose](https://www.docker.com/get-started)
+- [Maven](https://maven.apache.org/) (or use the provided `./mvnw`)
 
-### Distributed Caching (Redis)
-- **Redis Cache Manager:** Configured for JSON serialization with `JavaTimeModule` support.
-- **Granular TTL:** Custom TTL for different cache regions (e.g., 10m for projects, 24h for task statuses).
-- **Pagination Caching:** Optimized caching for paginated results using composite keys.
+### Setup
 
-### Task & Project Management
-- **Projects:** CRUD operations, automatic manager assignment for creators, member management.
-- **Tasks:** Rich attributes (Assignee, Reporter, Priority, Dates, Estimates).
-- **Workflow:** Customizable `TaskStatus` entity (TODO, IN_PROGRESS, DONE, etc.).
-- **Collaboration:** Comments and Logtimes for effort tracking (Soft-delete enabled).
-- **Tags:** Many-to-Many relationship for flexible task categorization.
+1.  **Clone the Repository**
+    ```bash
+    git clone https://github.com/your-username/springboot-base-project.git
+    cd springboot-base-project
+    ```
 
----
+2.  **Environment Configuration**
+    Create a `.env` file in the root directory:
+    ```dotenv
+    # Application
+    APP_NAME=SpringBootBaseProject
+    APP_ENV=dev
 
-## Project Structure
+    # JWT Security
+    JWT_SECRET=your_very_long_and_secure_random_string_here
+    JWT_EXPIRATION=86400000
+
+    # Sentry
+    SENTRY_DSN=your_sentry_dsn_here
+
+    # Database
+    DB_HOST=localhost
+    DB_PORT=3306
+    DB_DATABASE=springboot_base
+    DB_USERNAME=root
+    DB_PASSWORD=your_password
+
+    # Redis
+    REDIS_HOST=localhost
+    REDIS_PORT=6379
+
+    # RabbitMQ
+    RABBITMQ_HOST=localhost
+    RABBITMQ_PORT=5672
+    RABBITMQ_USERNAME=guest
+    RABBITMQ_PASSWORD=guest
+
+    # Mail
+    MAIL_HOST=smtp.gmail.com
+    MAIL_PORT=587
+    MAIL_USERNAME=your_email@gmail.com
+    MAIL_PASSWORD=your_app_password
+    ```
+
+3.  **Spin up Infrastructure**
+    ```bash
+    docker-compose -f docker-compose-db.yml -f docker-compose-elk.yml up -d
+    ```
+
+4.  **Run the Application**
+    ```bash
+    ./mvnw spring-boot:run
+    ```
+
+## 📂 Project Structure
 
 ```text
 src/main/java/com/congpv/springboot_base_project/
-│
-├── application/                     # API Layer
-│   └── controller/                  # Auth, User, Project, ProjectMember, Task, Comment, LogTime
-│
-├── core/                            # Domain & Business Layer
-│   ├── entity/                      # JPA Entities (User, Task, Project, Role, Token, etc.)
-│   ├── repository/                  # Spring Data JPA Repositories
-│   └── service/                     # Service Interfaces
-│       └── impl/                    # Business Logic Implementations
-│
-├── infrastructure/                  # Infrastructure Layer
-│   ├── aspect/                      # AOP: ExceptionAudit, RegisterValidation
-│   ├── config/                      # Config: Redis, Security, Async, Flyway, OpenAPI, MDC...
-│   ├── job/                         # Scheduled Tasks (OverdueTaskJob)
-│   └── security/                    # JWT, UserDetails, ProjectSecurityService
-│
-└── shared/                          # Cross-cutting Shared Layer
-    ├── constant/                    # ApplicationConstants
-    ├── dto/                         # Request/Response DTOs
-    ├── enums/                       # TaskPriority
-    ├── exception/                   # GlobalExceptionHandler & Custom Exceptions
-    ├── mapper/                      # Entity ↔ DTO Mappers
-    └── util/                        # ApplicationUtil
+├── application/            # API Layer
+│   └── controller/         # REST Controllers (Auth, Project, Task, etc.)
+├── core/                   # Domain & Business Logic
+│   ├── entity/             # JPA Entities (User, Project, Task, etc.)
+│   ├── repository/         # Spring Data Repositories
+│   └── service/            # Business Interfaces & Implementations (impl/)
+├── infrastructure/         # External Systems & Configuration
+│   ├── aspect/             # AOP for Validation and Auditing
+│   ├── config/             # Spring Beans & System Config (Security, Redis, MQ)
+│   ├── job/                # Scheduled Background Tasks
+│   ├── messaging/          # RabbitMQ Producers & Consumers
+│   └── security/           # JWT & Security Provider Logic
+└── shared/                 # Common Utilities & DTOs
+    ├── constant/           # App Constants
+    ├── dto/                # Request/Response Data Transfer Objects
+    ├── enums/              # Shared Enumerations (TaskPriority, etc.)
+    ├── exception/          # Custom Exceptions & Global Handler
+    ├── mapper/             # Entity-DTO Mappers (MapStruct/Custom)
+    └── util/               # Helper Utility Classes
 ```
 
----
+## 📖 API Documentation
 
-## Database Migrations (Flyway)
+Access the Swagger UI at: `http://localhost:8080/swagger-ui/index.html`
 
-| Version | Description |
-|---|---|
-| **V1** | Initialize database schema (users, roles, projects, tasks, etc.) |
-| **V2** | Add `comments` and `logtimes` tables |
-| **V3** | Add `is_deleted` column to comments and logtimes |
-| **V4** | Add `priority` column to tasks |
-| **V5** | Create `tags` and `task_tags` join table |
-| **V6** | Seed initial system data |
-| **V7** | Add JPA Auditing fields (`created_by`, `updated_by`) |
-| **V8** | Add development seed data |
-| **V9** | Refactor task status into dedicated `task_status` table |
-| **V10** | Refactor project roles into dedicated `project_roles` table |
-| **V11** | Refactor user roles to Many-to-Many join table |
+## 🧪 Testing
 
----
-
-## Getting Started
-
-### 1. Environment Configuration
-Create a `.env` file at the project root:
-```env
-# Server
-SERVER_PORT=8080
-
-# Database
-DB_URL=jdbc:mysql://localhost:3307/springboot_base_db
-DB_PASSWORD=your_mysql_password
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# JWT
-JWT_SECRET=your_base64_secret_key
-JWT_EXPIRATION=604800000
-
-# Monitoring
-SENTRY_DSN=...
-LOGSTASH_HOST=localhost
-LOGSTASH_PORT=5000
-```
-
-### 2. Infrastructure (Docker)
+Run unit and integration tests:
 ```bash
-# Start MySQL and Redis
-docker compose -f docker-compose-db.yml up -d
-
-# (Optional) Start ELK Stack
-docker compose -f docker-compose-elk.yml up -d
+./mvnw test
 ```
 
-### 3. Run Application
-```bash
-./mvnw clean spring-boot:run
-```
+## 📝 Logging
 
----
-
-## API & Documentation
-- **Swagger UI:** `http://localhost:8080/swagger-ui/index.html`
-- **Postman:** You can import the OpenAPI spec from `/v3/api-docs`.
-- **Key Flow:** Login via `/api/v1/auth/login` to obtain the Bearer Token for subsequent requests.
+Logs are stored in the `/logs` directory and forwarded to Logstash (if ELK is running) as per `logback-spring.xml` and `logstash.conf`.
