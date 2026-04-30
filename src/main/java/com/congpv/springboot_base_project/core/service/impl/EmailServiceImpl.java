@@ -1,13 +1,16 @@
 package com.congpv.springboot_base_project.core.service.impl;
-
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.congpv.springboot_base_project.core.service.EmailService;
+
+import java.io.File;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +19,6 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Async("emailTaskExecutor")
     public void sendNewTaskNotification(String toEmail, String taskTitle, String assigneeName) {
         log.info("Bắt đầu tiến trình gửi email ngầm tới: {}", toEmail);
 
@@ -35,7 +37,31 @@ public class EmailServiceImpl implements EmailService {
             log.info("Gửi email thành công tới: {}", toEmail);
         } catch (Exception e) {
             log.error("Lỗi khi gửi email tới {}: {}", toEmail, e.getMessage());
-            // Tại đây bạn có thể cấu hình bắn lỗi lên Sentry nếu email thất bại
+        }
+    }
+
+    @Override
+    public void sendEmailWithAttachment(String email, String title, String subject, File generatedFile) {
+        log.info("Start sending mail to: {}", email);
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom("congpv24@gmail.com");
+            helper.setTo(email);
+            helper.setSubject(subject);
+            helper.setText(title);
+
+            if (generatedFile != null && generatedFile.exists()) {
+                helper.addAttachment(generatedFile.getName(), generatedFile);
+            }
+
+            mailSender.send(message);
+
+            log.info("Send mail successfully with attachment to: {}", email);
+        } catch (Exception e) {
+            log.error("Error when sending email to {}: {}", email, e.getMessage());
         }
     }
 }

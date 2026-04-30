@@ -1,10 +1,12 @@
 package com.congpv.springboot_base_project.application.controller;
 
+import com.congpv.springboot_base_project.core.service.TaskExportService;
+import com.congpv.springboot_base_project.infrastructure.messaging.RabbitMQProducer;
 import com.congpv.springboot_base_project.shared.dto.common.ApiResponse;
 import com.congpv.springboot_base_project.shared.dto.common.PageResponse;
+import com.congpv.springboot_base_project.shared.dto.events.ExportTaskEvent;
 import com.congpv.springboot_base_project.shared.dto.task.TaskRequestDto;
 import com.congpv.springboot_base_project.shared.dto.task.TaskResponseDto;
-import com.congpv.springboot_base_project.core.service.EmailService;
 import com.congpv.springboot_base_project.core.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +16,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+
 @RestController
 @RequestMapping("/api/v1/projects/{projectId}/tasks")
 @RequiredArgsConstructor
 public class TaskController {
 
     private final TaskService taskService;
+    private final TaskExportService taskExportService;
+    private final RabbitMQProducer rabbitMQProducer;
 
     @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
     @PostMapping
@@ -68,5 +74,13 @@ public class TaskController {
             @PathVariable Long taskId) {
         taskService.deleteTask(projectId, taskId);
         return ResponseEntity.ok(ApiResponse.success("Task deleted", null));
+    }
+
+    @PreAuthorize("@projectSecurity.isProjectMember(#projectId, authentication)")
+    @GetMapping("/export")
+    public ResponseEntity<ApiResponse<Void>> exportTask(@PathVariable Long projectId) {
+        File csvFile = taskExportService.generateTasksCsv(projectId);
+        rabbitMQProducer.publishTaskExport(new ExportTaskEvent(csvFile, projectId));
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
