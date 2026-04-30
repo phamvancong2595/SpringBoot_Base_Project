@@ -15,7 +15,7 @@ public class ExceptionAudit {
     @AfterThrowing(
             pointcut = "execution(* com.congpv.springboot_base_project.application..*.*(..)) || " +
                     "execution(* com.congpv.springboot_base_project.core.service..*.*(..)) || " +
-                    "execution(* com.congpv.springboot_base_project.infrastructure.repository..*.*(..))",
+                    "execution(* com.congpv.springboot_base_project.core.repository..*.*(..))",
             throwing = "ex"
     )
     public void logAfterException(JoinPoint joinPoint, Exception ex) {
