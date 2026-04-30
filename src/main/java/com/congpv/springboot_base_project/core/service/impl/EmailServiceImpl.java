@@ -16,7 +16,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Async("asyncExecutor")
+    @Async("emailTaskExecutor")
     public void sendNewTaskNotification(String toEmail, String taskTitle, String assigneeName) {
         log.info("Bắt đầu tiến trình gửi email ngầm tới: {}", toEmail);
 
