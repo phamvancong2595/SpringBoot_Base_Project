@@ -1,4 +1,4 @@
-package com.congpv.springboot_base_project.infrastructure.config;
+package com.congpv.springboot_base_project.infrastructure.config.data_source;
 
 
 import org.flywaydb.core.Flyway;
@@ -10,13 +10,13 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
 public class FlywayConfig {
-    @Value("${spring.datasource.url}")
+    @Value("${spring.datasource.primary.jdbc-url}")
     private String dataSourceUrl;
 
-    @Value("${spring.datasource.username}")
+    @Value("${spring.datasource.primary.username}")
     private String user;
 
-    @Value("${spring.datasource.password}")
+    @Value("${spring.datasource.primary.password}")
     private String password;
 
     @Bean(initMethod = "migrate")
