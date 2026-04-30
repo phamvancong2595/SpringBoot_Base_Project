@@ -25,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = "task_pagination", allEntries = true)
+            @CacheEvict(value = "task_pagination", allEntries = true),
+            @CacheEvict(value = "task_overdue", allEntries = true)
     })
     public TaskResponseDto createTask(Long projectId, TaskRequestDto request, String reporterUsername) {
         Project project = projectService.findById(projectId);
@@ -105,7 +107,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "task_details", key = "#taskId"),
-            @CacheEvict(value = "task_pagination", allEntries = true)
+            @CacheEvict(value = "task_pagination", allEntries = true),
+            @CacheEvict(value = "task_overdue", allEntries = true)
     })
     @Transactional
     public TaskResponseDto updateTask(Long projectId, Long taskId, TaskRequestDto request) {
@@ -134,7 +137,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "task_details", key = "#taskId"),
-            @CacheEvict(value = "task_pagination", allEntries = true)
+            @CacheEvict(value = "task_pagination", allEntries = true),
+            @CacheEvict(value = "task_overdue", allEntries = true)
     })
     @Transactional
     public void deleteTask(Long projectId, Long taskId) {
@@ -150,8 +154,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "task_details", key = "#taskId"),
+            @CacheEvict(value = "task_pagination", allEntries = true),
+            @CacheEvict(value = "task_overdue", allEntries = true)
+    })
     public void assignTaskOfMemberToManager(Long managerId, Long memberId, Long projectId) {
         taskRepository.updateTaskToManager(managerId, memberId, projectId);
+    }
+
+    @Override
+    @Cacheable(value = "task_overdue", key = "#today.atStartOfDay()")
+    public List<TaskResponseDto> getOverdueTasks(LocalDate today) {
+        return taskRepository.findOverdueTasks(today.atStartOfDay())
+                .stream().map(taskMapper::mapToDto).collect(Collectors.toList());
     }
 
 }

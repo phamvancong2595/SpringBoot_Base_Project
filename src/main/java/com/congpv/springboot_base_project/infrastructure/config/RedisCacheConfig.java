@@ -78,6 +78,7 @@ public class RedisCacheConfig {
 
         customConfigs.put("task_details", defaultConfig.entryTtl(Duration.ofMinutes(30)));
         customConfigs.put("task_pagination", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+        customConfigs.put("task_overdue", defaultConfig.entryTtl(Duration.ofDays(3)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

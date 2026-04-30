@@ -23,7 +23,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @EntityGraph(attributePaths = { "tags", "assignee", "reporter", "status"})
     Optional<Task> findByIdAndProjectIdAndIsDeletedFalse(Long id, Long projectId);
 
-    @Query("SELECT t FROM Task t WHERE t.status.code NOT IN ('DONE') AND t.dueDate < :now")
+    @Query("SELECT t FROM Task t " +
+            "JOIN FETCH t.status " +
+            "JOIN FETCH t.project " +
+            "JOIN FETCH t.reporter " +
+            "LEFT JOIN FETCH t.assignee " +
+            "WHERE t.status.code NOT IN ('DONE') AND t.dueDate < :now")
     List<Task> findOverdueTasks(@Param("now") LocalDateTime now);
 
     @Modifying

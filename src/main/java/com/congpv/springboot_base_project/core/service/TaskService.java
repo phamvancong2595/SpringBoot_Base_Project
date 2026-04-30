@@ -5,6 +5,9 @@ import com.congpv.springboot_base_project.shared.dto.common.PageResponse;
 import com.congpv.springboot_base_project.shared.dto.task.TaskRequestDto;
 import com.congpv.springboot_base_project.shared.dto.task.TaskResponseDto;
 
+import java.time.LocalDate;
+import java.util.List;
+
 public interface TaskService {
     TaskResponseDto createTask(Long projectId, TaskRequestDto request, String reporterUsername);
 
@@ -19,4 +22,6 @@ public interface TaskService {
     Task findTaskById(Long id);
 
     void assignTaskOfMemberToManager(Long managerId, Long memberId, Long projectId);
+
+    List<TaskResponseDto> getOverdueTasks(LocalDate today);
 }
