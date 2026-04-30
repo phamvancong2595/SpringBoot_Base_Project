@@ -6,4 +6,5 @@ public class ApplicationConstants {
     public static final String ADMIN = "ROLE_ADMIN";
     public static final String USER = "ROLE_USER";
     public static final Long PROJECT_MANAGER_ROLE_ID = 1L;
+    public static final String CRON_OVERDUE_KEY = "cron_job_overdue_tasks";
 }
