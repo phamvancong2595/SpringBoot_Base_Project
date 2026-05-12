@@ -5,6 +5,7 @@ import com.congpv.springboot_base_project.core.service.*;
 import com.congpv.springboot_base_project.infrastructure.messaging.RabbitMQProducer;
 import com.congpv.springboot_base_project.shared.dto.common.PageResponse;
 import com.congpv.springboot_base_project.shared.dto.events.CreateTaskEvent;
+import com.congpv.springboot_base_project.shared.dto.task.TaskCreatedEvent;
 import com.congpv.springboot_base_project.shared.dto.task.TaskRequestDto;
 import com.congpv.springboot_base_project.shared.dto.task.TaskResponseDto;
 import com.congpv.springboot_base_project.core.entity.Project;
@@ -22,6 +23,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
     private final RabbitMQProducer rabbitMQProducer;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     @Transactional
@@ -72,6 +75,9 @@ public class TaskServiceImpl implements TaskService {
         Task savedTask = taskRepository.save(task);
         rabbitMQProducer.publishTaskCreated(new CreateTaskEvent(task.getAssignee().getUsername(),
                 task.getTitle(), "congpv24@gmail.com"));
+        TaskCreatedEvent event = new TaskCreatedEvent(savedTask.getId(), savedTask.getAssignee().getFullName(), "congpv24@gmail.com");
+        kafkaTemplate.send("task-notification-topic", event);
+
         return taskMapper.mapToDto(savedTask);
     }
 
