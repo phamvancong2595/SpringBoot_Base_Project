@@ -139,8 +139,7 @@ public class TaskServiceImpl implements TaskService {
             task.setAssignee(null);
         }
 
-        Task updatedTask = taskRepository.save(task);
-        return taskMapper.mapToDto(updatedTask);
+        return taskMapper.mapToDto(task);
     }
 
     @Override

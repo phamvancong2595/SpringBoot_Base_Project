@@ -1,130 +1,110 @@
-# Spring Boot Base Project
+# Mini Jira - Spring Boot Base Project
 
-A robust and production-ready Spring Boot foundational project, pre-configured with industry-standard patterns and tools to accelerate backend development.
+A high-performance, enterprise-grade backend template based on **Spring Boot 4.0.6** and **Java 21**. This project serves as a robust foundation for building scalable applications with features like distributed caching, asynchronous messaging, and multi-layered architecture.
 
 ## 🚀 Key Features
 
-- **Java 21 & Spring Boot 4.0.5**: Leveraging the latest LTS Java features and Spring Boot performance.
-- **Database Management**: MySQL with **Flyway** for version-controlled database migrations.
-- **Security**: Stateless authentication using **Spring Security & JWT**.
-- **Caching & Locking**: **Redis** integration with **Redisson** for distributed locking and efficient caching.
-- **Asynchronous Messaging**: **RabbitMQ** for decoupling services and handling background tasks.
-- **Monitoring & Observability**:
-    - **ELK Stack** (Elasticsearch, Logstash, Kibana) for centralized logging.
-    - **Sentry** integration for real-time error tracking and performance monitoring.
-- **API Documentation**: Interactive API docs using **Swagger/OpenAPI 3**.
-- **Containerization**: Fully Dockerized environment with dedicated Compose files for DB and ELK.
-- **Scheduled Tasks**: Built-in support for background jobs using Spring Scheduling.
-- **AOP**: Aspect-Oriented Programming for request validation and audit logging.
+- **Cutting-Edge Stack**: Built with **Java 21 (LTS)** and **Spring Boot 4.0.6**.
+- **Database & Migrations**: MySQL integration with **Flyway** for reliable schema versioning.
+- **Advanced Caching**: **Redis** with **Redisson** for distributed locking and optimized data access.
+- **Dual Messaging Systems**: 
+    - **RabbitMQ** for reliable background task processing.
+    - **Apache Kafka** for high-throughput event streaming and notifications.
+- **Security**: Robust stateless authentication using **Spring Security** and **JWT**.
+- **Observability**: 
+    - **ELK Stack** (Elasticsearch, Logstash, Kibana) for centralized log management.
+    - **Sentry** (Optional) for real-time error tracking and performance monitoring.
+- **API Standards**: Fully documented REST APIs with **Swagger/OpenAPI 3**.
+- **Performance & AOP**: Aspect-Oriented Programming for audit logging, performance tracking, and request validation.
+- **Scheduled Jobs**: Integrated support for automated background tasks.
 
 ## 🛠 Tech Stack
 
-- **Backend**: Spring Boot, Spring Data JPA, Spring Security.
-- **Database**: MySQL 8+, Redis.
-- **Messaging**: RabbitMQ.
-- **Logging**: Logback, Logstash, ELK.
-- **Tools**: Lombok, MapStruct (for DTO mapping), Maven, Docker.
+- **Framework**: Spring Boot 4.0.6
+- **Database**: MySQL 8.0, Redis 7.2
+- **Messaging**: Apache Kafka, RabbitMQ
+- **Migration**: Flyway
+- **Documentation**: SpringDoc OpenAPI
+- **Build Tool**: Maven
 
 ## 🏁 Getting Started
 
 ### Prerequisites
 
-- [JDK 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
-- [Docker & Docker Compose](https://www.docker.com/get-started)
-- [Maven](https://maven.apache.org/) (or use the provided `./mvnw`)
+- **JDK 21**
+- **Docker & Docker Compose**
+- **Maven** (optional, wrapper included)
 
 ### Setup
 
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/your-username/springboot-base-project.git
-    cd springboot-base-project
-    ```
+1. **Environment Configuration**
+   Create a `.env` file in the root directory based on the following template:
+   \`\`\`dotenv
+   SERVER_PORT=8080
+   APP_NAME=mini-jira
+   APP_ENV=dev
 
-2.  **Environment Configuration**
-    Create a `.env` file in the root directory:
-    ```dotenv
-    # Application
-    APP_NAME=SpringBootBaseProject
-    APP_ENV=dev
+   # Database (Ensure correct JDBC format)
+   DB_URL=jdbc:mysql://localhost:3307/springboot_base_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+   DB_PASSWORD=your_password
 
-    # JWT Security
-    JWT_SECRET=your_very_long_and_secure_random_string_here
-    JWT_EXPIRATION=86400000
+   # Security
+   JWT_SECRET=your_base64_encoded_secret_key
+   JWT_EXPIRATION=604800000
 
-    # Sentry
-    SENTRY_DSN=your_sentry_dsn_here
+   # Infrastructure
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+   RABBITMQ_HOST=localhost
+   RABBITMQ_PORT=5672
+   KAFKA_BROKERS=localhost:9092
 
-    # Database
-    DB_HOST=localhost
-    DB_PORT=3306
-    DB_DATABASE=springboot_base
-    DB_USERNAME=root
-    DB_PASSWORD=your_password
+   # Email (SMTP)
+   MAIL_HOST=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USERNAME=your_email@gmail.com
+   MAIL_PASSWORD=your_app_password
+   \`\`\`
 
-    # Redis
-    REDIS_HOST=localhost
-    REDIS_PORT=6379
+2. **Launch Infrastructure Services**
+   \`\`\`bash
+   docker-compose -f docker-compose-db.yml up -d
+   \`\`\`
 
-    # RabbitMQ
-    RABBITMQ_HOST=localhost
-    RABBITMQ_PORT=5672
-    RABBITMQ_USERNAME=guest
-    RABBITMQ_PASSWORD=guest
-
-    # Mail
-    MAIL_HOST=smtp.gmail.com
-    MAIL_PORT=587
-    MAIL_USERNAME=your_email@gmail.com
-    MAIL_PASSWORD=your_app_password
-    ```
-
-3.  **Spin up Infrastructure**
-    ```bash
-    docker-compose -f docker-compose-db.yml -f docker-compose-elk.yml up -d
-    ```
-
-4.  **Run the Application**
-    ```bash
-    ./mvnw spring-boot:run
-    ```
+3. **Build and Run**
+   \`\`\`bash
+   ./mvnw clean spring-boot:run
+   \`\`\`
 
 ## 📂 Project Structure
 
-```text
-src/main/java/com/congpv/springboot_base_project/
-├── application/            # API Layer
-│   └── controller/         # REST Controllers (Auth, Project, Task, etc.)
+\`\`\`text
+com.congpv.springboot_base_project/
+├── application/            # Controllers & Entry Points
+│   └── controller/         # REST endpoints for Auth, Projects, Tasks, etc.
 ├── core/                   # Domain & Business Logic
-│   ├── entity/             # JPA Entities (User, Project, Task, etc.)
-│   ├── repository/         # Spring Data Repositories
-│   └── service/            # Business Interfaces & Implementations (impl/)
-├── infrastructure/         # External Systems & Configuration
-│   ├── aspect/             # AOP for Validation and Auditing
-│   ├── config/             # Spring Beans & System Config (Security, Redis, MQ)
-│   ├── job/                # Scheduled Background Tasks
-│   ├── messaging/          # RabbitMQ Producers & Consumers
-│   └── security/           # JWT & Security Provider Logic
-└── shared/                 # Common Utilities & DTOs
-    ├── constant/           # App Constants
-    ├── dto/                # Request/Response Data Transfer Objects
-    ├── enums/              # Shared Enumerations (TaskPriority, etc.)
-    ├── exception/          # Custom Exceptions & Global Handler
-    ├── mapper/             # Entity-DTO Mappers (MapStruct/Custom)
-    └── util/               # Helper Utility Classes
-```
+│   ├── entity/             # JPA Entities
+│   ├── repository/         # Data Access Layer
+│   └── service/            # Business Logic Interfaces & Implementations
+├── infrastructure/         # System Integrations
+│   ├── aspect/             # AOP: Logging, Performance, Validation
+│   ├── config/             # Configuration: Security, Kafka, Redis, RabbitMQ
+│   ├── messaging/          # Producers & Consumers (Kafka & Rabbit)
+│   └── job/                # Scheduled Tasks
+└── shared/                 # Shared Components
+    ├── dto/                # Data Transfer Objects
+    ├── exception/          # Global Exception Handling
+    ├── mapper/             # Object Mapping logic
+    └── util/               # Common Utility classes
+\`\`\`
 
-## 📖 API Documentation
+## 📖 Documentation & Monitoring
 
-Access the Swagger UI at: `http://localhost:8080/swagger-ui/index.html`
+- **Swagger UI**: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+- **Centralized Logs**: Forwarded to Logstash via port \`5000\` (requires ELK stack).
 
-## 🧪 Testing
+## 🧪 Development Notes
 
-Run unit and integration tests:
-```bash
-./mvnw test
-```
-
-## 📝 Logging
-
-Logs are stored in the `/logs` directory and forwarded to Logstash (if ELK is running) as per `logback-spring.xml` and `logstash.conf`.
+- **Cache Consistency**: Always use the correct cache name (e.g., \`projects_details\`) when using \`@CacheEvict\`.
+- **Null Safety**: When creating tasks, ensure the \`assignee\` object is checked for null before accessing properties to avoid \`NullPointerException\`.
+- **Kafka Topics**: The default topic \`task-notification-topic\` is automatically created upon the first message.
