@@ -73,9 +73,12 @@ public class TaskServiceImpl implements TaskService {
                 .build();
 
         Task savedTask = taskRepository.save(task);
-        rabbitMQProducer.publishTaskCreated(new CreateTaskEvent(task.getAssignee().getUsername(),
-                task.getTitle(), "congpv24@gmail.com"));
-        TaskCreatedEvent event = new TaskCreatedEvent(savedTask.getId(), savedTask.getAssignee().getFullName(), "congpv24@gmail.com");
+        String assigneeUsername = (savedTask.getAssignee() != null) ? savedTask.getAssignee().getUsername() : "Unassigned";
+        String assigneeFullName = (savedTask.getAssignee() != null) ? savedTask.getAssignee().getFullName() : "Unassigned";
+
+        rabbitMQProducer.publishTaskCreated(new CreateTaskEvent(assigneeUsername,
+                savedTask.getTitle(), "congpv24@gmail.com"));
+        TaskCreatedEvent event = new TaskCreatedEvent(savedTask.getId(), assigneeFullName, "congpv24@gmail.com");
         kafkaTemplate.send("task-notification-topic", event);
 
         return taskMapper.mapToDto(savedTask);
