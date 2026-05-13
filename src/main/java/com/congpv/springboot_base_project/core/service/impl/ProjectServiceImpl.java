@@ -122,7 +122,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = "project_details", key = "#projectId"),
+            @CacheEvict(value = "projects_details", key = "#projectId"),
             @CacheEvict(value = "projects_pagination", allEntries = true)
     })
     public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
@@ -147,7 +147,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = "project_details", key = "#projectId"),
+            @CacheEvict(value = "projects_details", key = "#projectId"),
             @CacheEvict(value = "projects_pagination", allEntries = true)
     })
     public void deleteProject(Long projectId) {
